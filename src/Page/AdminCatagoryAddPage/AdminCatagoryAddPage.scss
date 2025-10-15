@@ -1,0 +1,359 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
+
+// Rənglər & shadow məhsul səhifəsi ilə uyğun
+$primary-color: #abc7da;
+$secondary-color: #424242;
+$background-color: #d0d7ddaa;
+$text-color: #333;
+$light-color: #777;
+$error-color: #e74c3c;
+$success-color: #27ae60;
+$border-color: #ddd;
+$card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+@mixin transition($prop: all, $dur: 0.3s, $ease: ease-in-out) {
+  transition: $prop $dur $ease;
+}
+
+.admin-category-page1 {
+  font-family: "Poppins", sans-serif;
+  padding: 2rem;
+  background-color: $background-color;
+  min-height: 100vh;
+  margin-top: 50px;
+
+  .container {
+    max-width: 1200px !important;
+    margin: 0 auto;
+  }
+  /* Məhsul səhifəsinin başlığı ilə eyni */
+  .page-header2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.25rem;
+
+    .page-title {
+      font-size: 2rem;
+      color: $secondary-color;
+      margin: 0;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+
+      .search {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        background: #fff;
+        border: 1px solid $border-color;
+        border-radius: 8px;
+        padding: 0.6rem 0.9rem;
+
+        i {
+          color: $light-color;
+        }
+        input {
+          border: none;
+          outline: none;
+          min-width: 240px;
+          font-size: 0.95rem;
+        }
+      }
+
+      .add-btn {
+        display: flex;
+        text-decoration: none;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.8rem 1.5rem;
+        background-color: $primary-color;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 500;
+        cursor: pointer;
+        @include transition;
+
+        &:hover {
+          background-color: darken($primary-color, 10%);
+        }
+      }
+    }
+  }
+
+  /* Cədvəl konteyneri */
+  .table-wrap {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: $card-shadow;
+    overflow: hidden;
+  }
+
+  /* Cədvəl stilləri */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+
+    thead th {
+      background: #f7f9fb;
+      color: $secondary-color;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.2px;
+      padding: 14px 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    tbody td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f0f0f0;
+      color: $text-color;
+      vertical-align: middle;
+    }
+
+    tbody tr:hover {
+      background: #fafcff;
+    }
+
+    .empty-cell {
+      text-align: center;
+      padding: 22px !important;
+      color: $light-color;
+      font-style: italic;
+    }
+  }
+
+  /* Sətir əməliyyat düymələri (məhsul səhifəsinə uyğun) */
+  .row-actions {
+    display: flex;
+    gap: 0.5rem;
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.55rem 0.9rem;
+      border-radius: 8px;
+      font-weight: 500;
+      border: 1px solid transparent;
+      cursor: pointer;
+      @include transition;
+      text-decoration: none;
+
+      i {
+        font-size: 0.95rem;
+      }
+
+      &.light {
+        background: rgba(52, 152, 219, 0.1);
+        color: #3498db;
+        border-color: rgba(52, 152, 219, 0.25);
+        &:hover {
+          background: rgba(52, 152, 219, 0.18);
+        }
+      }
+
+      &.danger {
+        background: rgba(231, 76, 60, 0.1);
+        color: $error-color;
+        border-color: rgba(231, 76, 60, 0.25);
+        &:hover {
+          background: rgba(231, 76, 60, 0.18);
+        }
+      }
+    }
+  }
+
+  /* Pagination (məhsul səhifəsi ilə eyni) */
+  .pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.25rem;
+
+    .pagination-btn {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1.2rem;
+      background-color: white;
+      border: 1px solid $border-color;
+      border-radius: 6px;
+      cursor: pointer;
+      @include transition;
+
+      &:hover:not(.disabled) {
+        background-color: $primary-color;
+        color: white;
+        border-color: $primary-color;
+      }
+      &.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+      }
+    }
+
+    .pagination-numbers {
+      display: flex;
+      gap: 0.5rem;
+
+      .pagination-number {
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 6px;
+        border: 1px solid $border-color;
+        background-color: white;
+        cursor: pointer;
+        @include transition;
+
+        &:hover {
+          background-color: lighten($primary-color, 40%);
+          border-color: $primary-color;
+        }
+        &.active {
+          background-color: $primary-color;
+          color: #fff;
+          border-color: $primary-color;
+        }
+      }
+    }
+  }
+
+  /* Modal (məhsul səhifəsindəki ilə eyni) */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 1rem;
+
+    .confirmation-modal {
+      background-color: white;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      overflow: hidden;
+
+      .modal-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1.2rem 1.5rem;
+        border-bottom: 1px solid $border-color;
+
+        h3 {
+          margin: 0;
+          color: $text-color;
+        }
+        .close-btn {
+          background: none;
+          border: none;
+          font-size: 1.1rem;
+          color: $light-color;
+          cursor: pointer;
+          @include transition;
+          &:hover {
+            color: $error-color;
+          }
+        }
+      }
+
+      .modal-content {
+        padding: 1.6rem 1.5rem;
+        text-align: center;
+
+        .warning-icon {
+          color: $error-color;
+          font-size: 3rem;
+          margin-bottom: 1rem;
+        }
+        p {
+          color: $text-color;
+          line-height: 1.6;
+          margin: 0;
+        }
+      }
+
+      .modal-actions {
+        display: flex;
+        padding: 1rem 1.5rem;
+        border-top: 1px solid $border-color;
+
+        .btn {
+          flex: 1;
+          padding: 0.8rem 1.2rem;
+          border-radius: 8px;
+          font-weight: 500;
+          cursor: pointer;
+          @include transition;
+
+          &.cancel {
+            background: transparent;
+            border: 1px solid $light-color;
+            color: $light-color;
+            margin-right: 0.8rem;
+            &:hover {
+              background: #f5f5f5;
+            }
+          }
+          &.confirm {
+            background: $error-color;
+            border: 1px solid $error-color;
+            color: #fff;
+            &:hover {
+              background: darken($error-color, 10%);
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .admin-category-page1 {
+    padding: 1.5rem 1rem;
+  }
+
+  .page-header2 {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+
+    .header-right {
+      justify-content: space-between;
+    }
+    .search input {
+      min-width: 0;
+      width: 100%;
+    }
+  }
+
+  .data-table {
+    display: block;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+
+  .modal-overlay .confirmation-modal .modal-actions {
+    flex-direction: column;
+    .btn.cancel {
+      margin-right: 0;
+      order: 2;
+    }
+  }
+}
