@@ -85,8 +85,13 @@ function WaiterLoginPage({
               ))}
 
               {/* “.” — indi 1-1 silir */}
-              <button type="button" className="key" onClick={backspace}>
-                <RiDeleteBack2Line />
+              <button
+                type="button"
+                className="key"
+                onClick={() => setVisible((v) => !v)}
+                aria-label={visible ? "Gizlət" : "Göstər"}
+              >
+                {visible ? <FiEyeOff /> : <FiEye />}
               </button>
 
               <button
@@ -98,13 +103,9 @@ function WaiterLoginPage({
               </button>
 
               {/* Qırmızı göz: görünən/gizli */}
-              <button
-                type="button"
-                className="key eye"
-                onClick={() => setVisible((v) => !v)}
-                aria-label={visible ? "Gizlət" : "Göstər"}
-              >
-                {visible ? <FiEyeOff /> : <FiEye />}
+
+              <button type="button" className="key eye" onClick={backspace}>
+                <RiDeleteBack2Line />
               </button>
             </div>
 

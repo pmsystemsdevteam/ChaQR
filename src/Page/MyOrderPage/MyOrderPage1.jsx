@@ -28,9 +28,9 @@ function MyOrderPage1() {
   // Ofisiant çağırma funksiyası
   const callWaiter = async () => {
     if (callingWaiter) return; // Əgər artıq çağırılıbsa, dayandır
-    
+
     setCallingWaiter(true);
-    
+
     try {
       const orderId = localStorage.getItem("order_id");
       if (!orderId) {
@@ -43,18 +43,18 @@ function MyOrderPage1() {
       const response = await axios.patch(
         `http://172.20.5.167:8001/api/tables/${order.table.id}/`,
         {
-          status: "waitingWaiter"
+          status: "waitingWaiter",
         }
       );
 
       if (response.status === 200) {
         alert("Ofisiant çağırıldı ✅");
-        
+
         // Sifariş məlumatlarını yenilə
         const res = await axios.get("http://172.20.5.167:8001/api/baskets/");
         const list = Array.isArray(res.data) ? res.data : [];
-        const currentOrder = list.find(o => o.id.toString() === orderId);
-        
+        const currentOrder = list.find((o) => o.id.toString() === orderId);
+
         if (currentOrder) {
           setOrder(currentOrder);
         }
@@ -342,7 +342,7 @@ function MyOrderPage1() {
                   >
                     <span>{p?.name_az || `Məhsul #${ex.productID}`}</span>
                     <span>{ex.count}</span>
-                    <span>{total} ₼</span>
+                    <span>{total} </span>
                   </div>
                 );
               })}
@@ -351,12 +351,16 @@ function MyOrderPage1() {
 
           <div className="row two total">
             <span>Servis haqqı</span>
-            <span>{service_cost} ₼</span>
+            <span>
+              {service_cost} <p>₼</p>
+            </span>
           </div>
 
           <div className="row two total">
             <span>Ümumi</span>
-            <span>{total_cost} ₼</span>
+            <span>
+              {total_cost} <p>₼</p>
+            </span>
           </div>
 
           <div className="row two total">
@@ -434,9 +438,7 @@ function MyOrderPage1() {
             <div className="icon">
               <ImUserTie />
             </div>
-            <span>
-              {callingWaiter ? "Çağırılır..." : "Ofisiantı çağır"}
-            </span>
+            <span>{callingWaiter ? "Çağırılır..." : "Ofisiantı çağır"}</span>
           </button>
         </div>
       </div>
