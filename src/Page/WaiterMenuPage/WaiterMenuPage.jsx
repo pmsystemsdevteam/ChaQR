@@ -12,7 +12,7 @@ function WaiterMenuPage() {
   const [basket, setBasket] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const BASE_URL = "http://172.20.5.167:8001/api";
+  const BASE_URL = "https://efficiently-leads-table-august.trycloudflare.com/api";
 
   // --- Kategoriyaları çək ---
   const fetchCategories = async () => {

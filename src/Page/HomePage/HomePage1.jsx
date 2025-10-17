@@ -7,7 +7,7 @@ import { ImUserTie } from "react-icons/im";
 import Left from "../../Image/HomeLeft.png";
 import Right from "../../Image/HomeRight.png";
 
-const API_URL = "http://172.20.5.167:8001/api/tables/";
+const API_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/tables/";
 
 function HomePage1() {
   const navigate = useNavigate();

@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "./BasketPopUp.scss";
 import axios from "axios";
 
-const TABLES_URL = "http://172.20.5.167:8001/api/tables/";
+const TABLES_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/tables/";
 const TABLE_NUM_KEY = "tableNumber";
 
 const BASKET_KEY = "basket";

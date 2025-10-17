@@ -3,8 +3,8 @@ import "./AdminProductPage.scss";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const PRODUCTS_URL   = "http://172.20.5.167:8001/api/products/";
-const CATEGORIES_URL = "http://172.20.5.167:8001/api/categories/";
+const PRODUCTS_URL   = "https://efficiently-leads-table-august.trycloudflare.com/api/products/";
+const CATEGORIES_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/categories/";
 
 function AdminProductPage() {
   const [products, setProducts] = useState([]);

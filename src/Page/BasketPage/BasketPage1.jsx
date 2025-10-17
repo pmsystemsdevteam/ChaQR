@@ -31,7 +31,7 @@ function BasketPage1() {
     const myBasket = JSON.parse(localStorage.getItem("my_basket")) || [];
 
     axios
-      .get("http://172.20.5.167:8001/api/products/")
+      .get("https://efficiently-leads-table-august.trycloudflare.com/api/products/")
       .then((res) => {
         setAllProducts(res.data);
 
@@ -55,7 +55,7 @@ function BasketPage1() {
       }
 
       // 🔹 1. Cədvəli tap
-      const tablesRes = await axios.get("http://172.20.5.167:8001/api/tables/");
+      const tablesRes = await axios.get("https://efficiently-leads-table-august.trycloudflare.com/api/tables/");
       const tables = Array.isArray(tablesRes.data) ? tablesRes.data : [];
       const foundTable = tables.find(
         (t) => Number(t.table_num) === Number(tableNum)
@@ -69,7 +69,7 @@ function BasketPage1() {
       // 🔹 2. Masanın statusunu dəyiş (YENİ sifariş üçün)
       if (!isExtraOrder) {
         await axios.patch(
-          `http://172.20.5.167:8001/api/tables/${foundTable.id}/`,
+          `https://efficiently-leads-table-august.trycloudflare.com/api/tables/${foundTable.id}/`,
           { status: "sendOrder" }
         );
       }
@@ -82,7 +82,7 @@ function BasketPage1() {
 
         // 🔹 Mövcud sifarişi əldə et
         const existingOrderRes = await axios.get(
-          `http://172.20.5.167:8001/api/baskets/${existingOrderId}/`
+          `https://efficiently-leads-table-august.trycloudflare.com/api/baskets/${existingOrderId}/`
         );
         const existingOrder = existingOrderRes.data;
 
@@ -133,7 +133,7 @@ function BasketPage1() {
         };
 
         response = await axios.patch(
-          `http://172.20.5.167:8001/api/baskets/${existingOrderId}/`,
+          `https://efficiently-leads-table-august.trycloudflare.com/api/baskets/${existingOrderId}/`,
           payload,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -172,7 +172,7 @@ function BasketPage1() {
         };
 
         response = await axios.post(
-          "http://172.20.5.167:8001/api/baskets/",
+          "https://efficiently-leads-table-august.trycloudflare.com/api/baskets/",
           payload,
           { headers: { "Content-Type": "application/json" } }
         );

@@ -12,10 +12,10 @@ const PRODUCTS_URL = `${baseUrl}/api/products/`;
 const TABLES_URL = `${baseUrl}/api/tables/`;
 const ROOMS_URL = `${baseUrl}/api/rooms/`;
 
-const HOTEL_ROOMS_URL = "http://172.20.5.167:8001/api/hotel-room-number/";
+const HOTEL_ROOMS_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/hotel-room-number/";
 
-const TABLE_BASKETS_POST_URL = "http://172.20.5.167:8001/api/baskets/";
-const ROOM_ORDERED_POST_URL = "http://172.20.5.167:8001/api/room-ordered/";
+const TABLE_BASKETS_POST_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/baskets/";
+const ROOM_ORDERED_POST_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/room-ordered/";
 
 const BASKET_KEY = "basket";
 const SERVICE_COST = 2.5;

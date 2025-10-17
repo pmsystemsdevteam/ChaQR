@@ -6,7 +6,7 @@ import Left from "../../Image/MenuLeft.png";
 import Right from "../../Image/MenuRight.png";
 import { IoIosArrowRoundForward } from "react-icons/io";
 
-const API_BASE = "http://172.20.5.167:8001/api";
+const API_BASE = "https://efficiently-leads-table-august.trycloudflare.com/api";
 
 function ProductPage1() {
   const [categories, setCategories] = useState([]);

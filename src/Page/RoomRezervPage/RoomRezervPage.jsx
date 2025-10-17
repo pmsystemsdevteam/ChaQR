@@ -9,8 +9,8 @@ import { TextField, Button, Tooltip } from "@mui/material";
 import { enUS } from "date-fns/locale";
 import "./RoomRezervPage.scss";
 
-const ROOMS_API = "http://172.20.5.167:8001/api/rooms/";
-const RES_API = "http://172.20.5.167:8001/api/room-reservations/";
+const ROOMS_API = "https://efficiently-leads-table-august.trycloudflare.com/api/rooms/";
+const RES_API = "https://efficiently-leads-table-august.trycloudflare.com/api/room-reservations/";
 
 /* ===== Util ===== */
 const pad2 = (n) => String(n).padStart(2, "0");

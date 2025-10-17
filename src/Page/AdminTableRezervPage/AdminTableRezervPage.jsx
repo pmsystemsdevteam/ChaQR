@@ -32,7 +32,7 @@ import { enUS } from "date-fns/locale";
 import { FaChair, FaUtensils } from "react-icons/fa";
 import "./AdminTableRezervPage.scss";
 
-const API_URL = "http://172.20.5.167:8001/api/reservations/";
+const API_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/reservations/";
 
 const AdminTableRezervPage = () => {
   const [reservations, setReservations] = useState([]);

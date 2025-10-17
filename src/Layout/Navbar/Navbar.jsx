@@ -3,7 +3,7 @@ import "./Navbar.scss";
 import { Link } from "react-router-dom";
 import axios from "axios";
 
-const TABLES_URL = "http://172.20.5.167:8001/api/tables/";
+const TABLES_URL = "https://efficiently-leads-table-august.trycloudflare.com/api/tables/";
 
 // Yeni açarlar
 const TABLE_KEY = "table";           // t üçün

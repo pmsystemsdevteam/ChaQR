@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./AdminHotelAddPage.scss";
 
-const ROOMS_API = "http://172.20.5.167:8001/api/hotel-room-number/";
+const ROOMS_API = "https://efficiently-leads-table-august.trycloudflare.com/api/hotel-room-number/";
 
 function AdminHotelAddPage() {
   const [rooms, setRooms] = useState([]);

@@ -29,12 +29,12 @@ import "./AdminHotelAllOrderPage.scss";
 // ===== API service (NEW endpoints) =====
 const apiService = {
   fetchOrders: () =>
-    fetch("http://172.20.5.167:8001/api/room-ordered/").then((r) => {
+    fetch("https://efficiently-leads-table-august.trycloudflare.com/api/room-ordered/").then((r) => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.json();
     }),
   fetchHotelRooms: () =>
-    fetch("http://172.20.5.167:8001/api/hotel-room-number/").then((r) => {
+    fetch("https://efficiently-leads-table-august.trycloudflare.com/api/hotel-room-number/").then((r) => {
       if (!r.ok) throw new Error(`HTTP ${r.status}`);
       return r.json();
     }),
