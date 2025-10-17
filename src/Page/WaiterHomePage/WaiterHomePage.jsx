@@ -107,38 +107,39 @@ export default function WaiterHomePage() {
   return (
     <div id="waiterHomePage">
       <h2 className="title">Sifariş məlumatları</h2>
+      <div className="allPage">
+        {latestPerTable.map((b) => {
+          const tableNum = b?.table?.table_num ?? "-";
+          const orderNo = b?.order_number ?? "-";
+          const updatedAt = getUpdatedAt(b);
+          const statusKey = computeStatusKey(b);
+          const statusText = STATUS_LABELS[statusKey] || statusKey;
+          const colorClass = STATUS_COLORS[statusKey] || "gray";
 
-      {latestPerTable.map((b) => {
-        const tableNum = b?.table?.table_num ?? "-";
-        const orderNo = b?.order_number ?? "-";
-        const updatedAt = getUpdatedAt(b);
-        const statusKey = computeStatusKey(b);
-        const statusText = STATUS_LABELS[statusKey] || statusKey;
-        const colorClass = STATUS_COLORS[statusKey] || "gray";
-
-        return (
-          <div className="statusBox" key={b.id}>
-            <div className="up">
-              <p>Masa nömrəsi : №{tableNum}</p>
-              <span>Sifariş verilmə vaxtı: {formatTime(updatedAt)}</span>
-            </div>
-            <div className="down">
-              <span>Sifariş nömrəsi : {orderNo}</span>
-              <div
-                className={`status ${colorClass}`}
-                data-status={statusText}
-                title={statusKey}
-              >
-                {statusText}
+          return (
+            <div className="statusBox" key={b.id}>
+              <div className="up">
+                <p>Masa nömrəsi : №{tableNum}</p>
+                <span>Sifariş verilmə vaxtı: {formatTime(updatedAt)}</span>
+              </div>
+              <div className="down">
+                <span>Sifariş nömrəsi : {orderNo}</span>
+                <div
+                  className={`status ${colorClass}`}
+                  data-status={statusText}
+                  title={statusKey}
+                >
+                  {statusText}
+                </div>
               </div>
             </div>
-          </div>
-        );
-      })}
+          );
+        })}
 
-      {latestPerTable.length === 0 && (
-        <div className="loading">Aktiv sifariş yoxdur.</div>
-      )}
+        {latestPerTable.length === 0 && (
+          <div className="loading">Aktiv sifariş yoxdur.</div>
+        )}
+      </div>
     </div>
   );
 }

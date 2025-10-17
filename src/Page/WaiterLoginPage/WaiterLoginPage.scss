@@ -118,9 +118,9 @@
       }
 
       &.eye {
-        background: #A00E0E; // qırmızı düymə (şəkildəki kimi)
+        background: #a00e0e; // qırmızı düymə (şəkildəki kimi)
         color: #fff;
-        border-color: #A00E0E;
+        border-color: #a00e0e;
 
         &:hover {
           background: #ba0e0e;
@@ -135,28 +135,35 @@
     pointer-events: none;
   }
 
-  .submitBtn {
-    width: 100%;
-    max-width: 360px;
-    height: 52px;
-    border-radius: 10px;
-    font-family: "Poppins", sans-serif;
-    border: none;
-    cursor: pointer;
-    background: #ffaa00; // narıncı
-    color: #fff;
-    font-weight: 500;
-    font-size: 16px;
-    transition: filter 0.15s ease, transform 0.05s ease;
+ .submitBtn {
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
+  width: 100%;
+  max-width: 360px;
+  height: 52px;
+  line-height: 52px;
+  border-radius: 10px;
+  font-family: "Poppins", sans-serif;
+  border: none;
+  cursor: pointer;
+  background: #ffaa00; // narıncı
+  font-weight: 500;
+  font-size: 16px;
+  transition: filter 0.15s ease, transform 0.05s ease;
+  color: #fff;
 
-    &:disabled {
-      cursor: not-allowed;
-      background-color: #FFC655;
-    }
-    &:not(:disabled):active {
-      transform: translateY(1px);
-    }
+  &.disabled {
+    pointer-events: none;
+    background-color: #ffc655;
+    cursor: not-allowed;
   }
+
+  &:not(.disabled):active {
+    transform: translateY(1px);
+  }
+}
+
 
   /* Responsive */
   @media (max-width: 980px) {

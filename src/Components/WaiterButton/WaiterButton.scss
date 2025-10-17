@@ -1,0 +1,17 @@
+.waiterBtn {
+  display: flex;
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  font-size: 30px;
+  cursor: pointer;
+  position: fixed;
+  align-items: center;
+  justify-content: center;
+  bottom: 50px;
+  left: 20px;
+  z-index: 5;
+  border: 1px solid #fd8548;
+  background: #fff;
+  color: #fd8548;
+}

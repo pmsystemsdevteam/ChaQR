@@ -1,6 +1,7 @@
 // WaiterAlltablePage.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import "./WaiterAlltablePage.scss";
+import { Link } from "react-router-dom";
 
 const STATUS_LABELS = {
   waitingWaiter: "Ofisiant gözləyir",
@@ -28,7 +29,6 @@ function formatTimeFromISO(iso) {
   return m ? `${m[1]}:${m[2]}` : "—";
 }
 
-
 export default function WaiterAlltablePage() {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,13 +46,23 @@ export default function WaiterAlltablePage() {
         const data = await res.json();
 
         const normalized = (Array.isArray(data) ? data : []).map((t) => ({
-  id: t.id ?? `${t.table_num ?? t.number ?? Math.random()}`,
-  number: t.table_num ?? t.number ?? "—",
-  status: t.status ?? "sendOrder",
-  orders_count: t.orders_count ?? t.ordersCount ?? t.order_count ?? t.orderCount ?? 0,
-  time: t.created_at ?? t.createdAt ?? t.time ?? t.updated_at ?? t.updatedAt ?? null, // ⬅️
-}));
-
+          id: t.id ?? `${t.table_num ?? t.number ?? Math.random()}`,
+          number: t.table_num ?? t.number ?? "—",
+          status: t.status ?? "sendOrder",
+          orders_count:
+            t.orders_count ??
+            t.ordersCount ??
+            t.order_count ??
+            t.orderCount ??
+            0,
+          time:
+            t.created_at ??
+            t.createdAt ??
+            t.time ??
+            t.updated_at ??
+            t.updatedAt ??
+            null, // ⬅️
+        }));
 
         if (!cancelled) setTables(normalized);
       } catch (e) {
@@ -63,7 +73,9 @@ export default function WaiterAlltablePage() {
     }
 
     load();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   const cards = useMemo(() => {
@@ -108,7 +120,8 @@ export default function WaiterAlltablePage() {
           const isSkeleton = !!t.__skeleton && loading;
 
           return (
-            <div
+            <Link
+              to={"/waiter/waiterMenu"}
               key={t.id ?? idx}
               className={`table ${statusClass} ${isSkeleton ? "skeleton" : ""}`}
             >
@@ -123,7 +136,7 @@ export default function WaiterAlltablePage() {
                     `${t.orders_count} ədəd sifariş verildi`}
                 </span>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

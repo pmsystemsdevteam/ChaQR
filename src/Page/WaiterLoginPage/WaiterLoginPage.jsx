@@ -3,6 +3,7 @@ import { FiEye, FiEyeOff } from "react-icons/fi";
 import "./WaiterLoginPage.scss";
 import { RiDeleteBack2Line } from "react-icons/ri";
 import Logo from "../../Image/Logo.png";
+import { Link } from "react-router-dom";
 function WaiterLoginPage({
   onSubmit, // (pin)=>void  opsional
   photoUrl = "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1600&auto=format&fit=crop",
@@ -134,13 +135,15 @@ function WaiterLoginPage({
             />
 
             {/* Daxil ol */}
-            <button
-              type="submit"
-              className="submitBtn"
-              disabled={pin.length !== MAX}
+            <Link
+              to={pin.length === MAX ? "/waiter/allTable" : "#"}
+              className={`submitBtn ${pin.length !== MAX ? "disabled" : ""}`}
+              onClick={(e) => {
+                if (pin.length !== MAX) e.preventDefault(); // ❌ klikləmənin qarşısını alır
+              }}
             >
               Daxil ol
-            </button>
+            </Link>
           </form>
         </div>
       </div>
