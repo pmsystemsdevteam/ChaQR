@@ -3,7 +3,7 @@ import React from "react";
 import { Routes, Route, useLocation } from "react-router-dom";
 import ChefNav from "./ChefNav/ChefNav";
 import WaiterHomePage from "../Page/WaiterHomePage/WaiterHomePage";
-import WaiterLoginPage from "../Page/WaiterLoginPage/WaiterLoginPage";
+import WaiterLoginPage from "../Page/LoginPage/LoginPage";
 import WaiterAlltablePage from "../Page/WaiterAlltablePage/WaiterAlltablePage";
 import WaiterMenuPage from "../Page/WaiterMenuPage/WaiterMenuPage";
 import WaiterButton from "../Components/WaiterButton/WaiterButton";

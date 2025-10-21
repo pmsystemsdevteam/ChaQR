@@ -41,7 +41,7 @@ function MyOrderPage1() {
 
       // Masa statusunu yenilə
       const response = await axios.patch(
-        `https://efficiently-leads-table-august.trycloudflare.com/api/tables/${order.table.id}/`,
+        `http://172.20.5.167:8001/api/tables/${order.table.id}/`,
         {
           status: "waitingWaiter",
         }
@@ -51,7 +51,7 @@ function MyOrderPage1() {
         alert("Ofisiant çağırıldı ✅");
 
         // Sifariş məlumatlarını yenilə
-        const res = await axios.get("https://efficiently-leads-table-august.trycloudflare.com/api/baskets/");
+        const res = await axios.get("http://172.20.5.167:8001/api/baskets/");
         const list = Array.isArray(res.data) ? res.data : [];
         const currentOrder = list.find((o) => o.id.toString() === orderId);
 
@@ -116,7 +116,7 @@ function MyOrderPage1() {
         }
 
         // Sifarişləri çək
-        const res = await axios.get("https://efficiently-leads-table-august.trycloudflare.com/api/baskets/");
+        const res = await axios.get("http://172.20.5.167:8001/api/baskets/");
         const list = Array.isArray(res.data) ? res.data : [];
 
         // Eyni masa nömrəsi olan sifarişləri tap
@@ -146,7 +146,7 @@ function MyOrderPage1() {
 
         // Məhsulları çək
         const prodRes = await axios.get(
-          "https://efficiently-leads-table-august.trycloudflare.com/api/products/"
+          "http://172.20.5.167:8001/api/products/"
         );
         setProducts(Array.isArray(prodRes.data) ? prodRes.data : []);
       } catch (err) {

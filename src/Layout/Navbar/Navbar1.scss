@@ -49,15 +49,7 @@
       }
 
       .logo-text {
-        font-family: "Poppins", sans-serif;
-        font-size: 32px;
-        font-style: normal;
-        font-weight: 700;
-        line-height: normal;
-        background: linear-gradient(74deg, #fd9966 0%, #7e4224 100%);
-        background-clip: text;
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        height: 40px;
         &.delete {
           display: none !important;
         }

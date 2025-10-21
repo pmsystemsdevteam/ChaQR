@@ -1,0 +1,391 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
+
+#adminOrdersPage {
+  margin-left: 230px;
+  min-height: 100vh;
+  padding: 40px 20px;
+  font-family: "Poppins", sans-serif;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+
+    h2 {
+      font-size: 22px;
+      color: #1a1a1a;
+      font-weight: 400;
+    }
+
+    .sort-wrapper {
+      position: relative;
+
+      // 🔘 "Sifarişləri sırala" düyməsi
+      .sort-btn {
+        display: flex;
+        width: 232px;
+        height: 52px;
+        padding: 10px 12px;
+        justify-content: center;
+        align-items: center;
+        gap: 12px;
+        border-radius: 2px;
+        border: 0.5px solid #d4d2c4;
+        background: #fff;
+        cursor: pointer;
+        font-family: "Poppins", sans-serif;
+
+        &:hover {
+          background: #fafafa;
+          border-color: #d0d0d0;
+        }
+
+        .arrow {
+          color: #666;
+          font-size: 12px;
+          transition: transform 0.2s ease;
+        }
+
+        &.open .arrow {
+          transform: rotate(180deg);
+        }
+      }
+
+      // 🔽 Açılan menyu
+      .sort-menu {
+        position: absolute;
+        top: 50px;
+        right: 0;
+        display: flex;
+        width: 232px;
+        flex-direction: column;
+        align-items: flex-start;
+        border-radius: 0 0 4px 4px;
+        border-right: 0.5px solid #d4d2c4;
+        border-bottom: 0.5px solid #d4d2c4;
+        border-left: 0.5px solid #d4d2c4;
+        background: #fff;
+        z-index: 5;
+        border: 0.5px solid #d4d2c4;
+        background: #fff;
+        cursor: pointer;
+        font-family: "Poppins", sans-serif;
+        .sort-menu-item {
+          padding: 14px 18px;
+          font-size: 14px;
+          color: #1a1a1a;
+          cursor: pointer;
+          font-weight: 400;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: all 0.2s ease;
+          background: #fff;
+          border: 0.5px solid #d4d2c4;
+          width: 100%;
+          &:hover {
+            background: #f9f9f9;
+          }
+
+          &:first-child {
+            border-top: none;
+          }
+
+          // sağdakı custom checkbox
+          .checkbox {
+            width: 22px;
+            height: 22px;
+            border: 1.8px solid #111;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            background: #fff;
+
+            svg {
+              font-size: 14px;
+              color: #fff;
+              opacity: 0;
+              transition: opacity 0.2s ease;
+            }
+
+            &.checked {
+              background: #111;
+              border-color: #111;
+
+              svg {
+                opacity: 1;
+              }
+            }
+
+            &:hover {
+              transform: scale(1.05);
+              border-color: #000;
+            }
+          }
+        }
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(-5px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    }
+  }
+
+  .order-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
+  }
+
+  .ticket {
+    width: 404px;
+    background: #f8f8ff;
+    padding: 16px 16px 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+    position: relative;
+
+    @media (max-width: 748px) {
+      width: 100%;
+    }
+
+    .ticket-head {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+
+      .brand {
+        width: 58px;
+        height: 58px;
+        border-radius: 50%;
+        background: #2b2b2b !important;
+        color: #fff;
+        font-weight: 700;
+        display: grid;
+        place-items: center;
+        font-size: 12px;
+        letter-spacing: 0.6px;
+        overflow: hidden;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .time {
+        color: #000;
+        text-align: center;
+        font-family: "Poppins", sans-serif;
+        font-size: 12px;
+        font-weight: 400;
+        line-height: 100%;
+        margin: 10px 0 20px;
+      }
+    }
+
+    .row {
+      display: grid;
+      gap: 8px;
+      padding: 8px 0;
+      font-size: 14px;
+      color: #2b2b2b;
+      border-bottom: 1px solid #f0f0f0;
+
+      &.two {
+        grid-template-columns: 1fr auto;
+        font-size: 16px;
+        font-weight: 400;
+
+        span:last-child {
+          font-weight: 600;
+        }
+      }
+
+      &.three {
+        grid-template-columns: 1fr 1fr 1fr 1fr;
+
+        span {
+          text-align: center;
+          color: #000;
+          font-family: "Poppins", sans-serif;
+          font-size: 16px;
+          font-weight: 400;
+          line-height: 100%;
+          padding: 10px 0;
+
+          &:first-child {
+            text-align: start;
+          }
+
+          &:last-child {
+            text-align: end;
+          }
+
+          svg {
+            cursor: pointer;
+            transition: 0.2s ease;
+            &:hover {
+              color: #f50e0e;
+            }
+          }
+        }
+      }
+
+      &.header {
+        color: #9a9a9a;
+        border-bottom: 1px solid #eaeaea;
+
+        span {
+          color: #9a9a9a !important;
+          font-weight: 600;
+        }
+      }
+
+      &.total {
+        border-bottom: 0;
+        font-family: "Poppins", sans-serif;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        margin-top: 10px;
+
+        span:last-child {
+          justify-self: end;
+          display: flex;
+          font-weight: 700;
+
+          p {
+            margin-top: -10px;
+            margin-left: 3px;
+          }
+        }
+      }
+    }
+
+    .order-actions {
+      display: flex;
+      gap: 20px;
+      justify-content: center;
+
+      .cancel {
+        background: #f50e0e;
+        transition: all 0.5s;
+      }
+
+      .confirm {
+        background: #11b059;
+        transition: all 0.5s;
+      }
+
+      .preparing {
+        background: #ec9d0f;
+        transition: all 0.5s;
+      }
+
+      .print {
+        background: #10a6dd;
+        transition: all 0.5s;
+      }
+
+      div {
+        display: flex;
+        width: 160px;
+        height: 40px;
+        padding: 8px;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+        border-radius: 4px;
+        color: #fff;
+        text-align: center;
+        font-family: "Poppins", sans-serif;
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: 100%;
+        border: none;
+
+        .loader {
+          width: 24px;
+          height: 24px;
+          border: 5px solid #fff;
+          border-bottom-color: transparent;
+          border-radius: 50%;
+          display: inline-block;
+          box-sizing: border-box;
+          animation: rotation 1s linear infinite;
+        }
+
+        @keyframes rotation {
+          0% {
+            transform: rotate(0deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+      }
+    }
+
+    .note {
+      color: #000;
+      font-family: "Poppins", sans-serif;
+      font-size: 16px;
+      font-weight: 400;
+      line-height: 150%;
+      margin: 20px 0;
+    }
+  }
+  .status-badge {
+    display: inline-block;
+    padding: 8px 16px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    margin: 16px 0 0 0;
+    width: 100%;
+
+    &.status-new {
+      background: #e3f2fd;
+      color: #1976d2;
+      border: 1px solid #90caf9;
+    }
+
+    &.status-preparing {
+      background: #fff3e0;
+      color: #f57c00;
+      border: 1px solid #ffb74d;
+    }
+
+    &.status-ready {
+      background: #e8f5e9;
+      color: #388e3c;
+      border: 1px solid #81c784;
+    }
+
+    &.status-delivered {
+      background: #f3e5f5;
+      color: #7b1fa2;
+      border: 1px solid #ba68c8;
+    }
+
+    &.status-cancelled {
+      background: #ffebee;
+      color: #c62828;
+      border: 1px solid #ef5350;
+    }
+  }
+}

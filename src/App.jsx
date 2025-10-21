@@ -2,10 +2,11 @@ import "./App.css";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import MainLayout from "./Layout/MainLayout";
 import AdminLayout from "./Layout/AdminLayout";
-import LoginPage from "./Page/LoginPage/LoginPage";
+
 import { Toaster } from "react-hot-toast";
 import ChefLayout from "./Layout/ChefLayout";
 import WaiterLayout from "./Layout/WaiterLayout";
+import LoginPage from "./Page/LoginPage/LoginPage";
 
 function App() {
   return (
@@ -16,8 +17,10 @@ function App() {
           {/* Ana sayfa rotaları MainLayout içinde */}
           <Route path="/*" element={<MainLayout />} />
 
+          {/* Şef rotaları ChefLayout içinde */}
           <Route path="/chef/*" element={<ChefLayout />} />
 
+          {/* Ofisiant rotaları WaiterLayout içinde */}
           <Route path="/waiter/*" element={<WaiterLayout />} />
 
           {/* Admin rotaları AdminLayout içinde */}

@@ -1,275 +1,110 @@
-// Dashboard.scss
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
-@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap");
 
-// Dəyişənlər
-$primary-color: #abc7da;
-$secondary-color: #424242;
-$background-color: #d0d7ddaa;
-$sidebar-bg: #2c3e50;
-$sidebar-hover: #34495e;
-$text-color: #333;
-$light-color: #777;
-$background-color: #f5f7f9;
-$border-color: #ddd;
+$sidebar-bg: #2f2f2f; // şəkilə yaxın tünd fon
+$sidebar-border: rgba(255, 255, 255, 0.14);
+$btn-active-bg: #ffffff;
+$btn-active-fg: #111;
+$btn-hover: #3a3a3a;
+$text: #eaeaea;
+$muted: #bdbdbd;
 
-// Mixinlər
-@mixin flex-center {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-@mixin transition($property: all, $duration: 0.3s, $easing: ease-in-out) {
-  transition: $property $duration $easing;
-}
-
-.dashboard {
-  font-family: "Poppins", sans-serif;
-  // height: 100vh;
-  display: flex;
-  flex-direction: column;
+.sidebar-ui {
   position: fixed;
   top: 0;
-  // width: 100%;
-  z-index: 4;
-  background: transparent;
-  .top-nav {
-    height: 70px;
-    background-color: white;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1.5rem;
-    z-index: 100;
-    position: fixed;
-    top: 0;
-    width: 100%;
-    left: 0;
-    .nav-left {
-      display: flex;
-      align-items: center;
+  left: 0;
+  width: 230px; // şəkildəki en
+  height: 100vh;
+  background: $sidebar-bg;
+  border-right: 1px solid $sidebar-border;
+  display: grid;
+  grid-template-rows: 90px auto 100px; // logo / menyu / çıxış
+  font-family: "Poppins", sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 50px;
+  img {
+    max-width: 100px;
+  }
+  .menu {
+    margin-top: 50px;
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 16px;
 
-      .toggle-btn {
-        background: none;
+    li {
+      width: 190px;
+      font-family: "Poppins", sans-serif;
+    }
+
+    .menu-btn {
+      width: 100%;
+      display: grid;
+      place-items: center;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 500;
+      color: $text;
+      height: 48px;
+      border-radius: 8px;
+      background: transparent;
+      transition: background 160ms ease, color 160ms ease, box-shadow 160ms ease;
+
+      &:hover {
+        background: $btn-hover;
+      }
+
+      &.is-active {
+        background: $btn-active-bg; // ağ düymə
+        color: $btn-active-fg;
         border: none;
-        font-size: 1.2rem;
-        cursor: pointer;
-        color: $text-color;
-        margin-right: 1rem;
-        @include transition;
-
-        &:hover {
-          color: $primary-color;
-        }
-      }
-
-      .admin-text {
-        font-size: 1.3rem;
-        font-weight: 600;
-        color: $primary-color;
-      }
-    }
-
-    .nav-right {
-      .user-menu {
-        display: flex;
-        align-items: center;
-        gap: 0.8rem;
-
-        .user-info {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
-
-          .user-name {
-            font-weight: 500;
-            color: $text-color;
-          }
-
-          .user-role {
-            font-size: 0.8rem;
-            color: $light-color;
-          }
-        }
-
-        .user-avatar {
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          background-color: lighten($primary-color, 30%);
-          color: $primary-color;
-          @include flex-center;
-          font-size: 1.5rem;
-        }
+        box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.06) inset,
+          0 2px 10px rgba(0, 0, 0, 0.25);
       }
     }
   }
-  .sidebar {
-    width: 250px;
-    background-color: $sidebar-bg;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    @include transition(width);
-    height: 100%;
-    margin-top: 70px;
-    &.collapsed {
-      width: 70px;
 
-      .sidebar-header h2 {
-        opacity: 0;
-        visibility: hidden;
-      }
-    }
+  .logout-wrap {
+    position: absolute;
+    bottom: 30px;
+    .logout-btn {
+      width: 100%;
+      height: 44px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: $text;
+      font-weight: 500;
+      font-size: 16px;
+      letter-spacing: 0.2px;
+      width: 190px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 160ms ease;
+      font-family: "Poppins", sans-serif;
 
-    .sidebar-header {
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-
-      h2 {
-        font-size: 1.2rem;
-        margin: 0;
-        @include transition;
-      }
-    }
-
-    .sidebar-menu {
-      list-style: none;
-      padding: 1rem 0;
-      margin: 0;
-      flex: 1;
-      .link {
-        text-decoration: none;
-        color: white;
+      &:hover {
+        background: $btn-hover;
       }
 
-      li {
-        padding: 0.9rem 1rem;
+      .key {
+        font-size: 12px;
+        translate: 0 1px;
         display: flex;
-        align-items: center;
-        cursor: pointer;
-        position: relative;
-        @include transition;
-
-        i {
-          font-size: 1.2rem;
-          min-width: 30px;
-        }
-
-        span {
-          margin-left: 0.8rem;
-          white-space: nowrap;
-        }
-
-        .tooltip {
-          position: absolute;
-          left: 70px;
-          background-color: white;
-          color: $text-color;
-          padding: 0.5rem 1rem;
-          border-radius: 4px;
-          box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-          white-space: nowrap;
-          z-index: 1000;
-          opacity: 0;
-          visibility: hidden;
-          @include transition;
-        }
-
-        &:hover {
-          background-color: $sidebar-hover;
-
-          .tooltip {
-            opacity: 1;
-            visibility: visible;
-          }
-        }
-
-        &.active {
-          background-color: $primary-color;
-          border-left: 4px solid darken($primary-color, 10%);
-        }
-      }
-    }
-
-    .sidebar-footer {
-      padding: 1rem;
-      border-top: 1px solid rgba(255, 255, 255, 0.1);
-
-      .collapse-toggle {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-        padding: 0.5rem;
-        border-radius: 4px;
-        @include transition;
-
-        &:hover {
-          background-color: $sidebar-hover;
-        }
-
-        i {
-          min-width: 30px;
-        }
+        font-size: 20px;
       }
     }
   }
 }
 
-// Responsive dizayn
-@media screen and (max-width: 768px) {
-  .dashboard {
-    .dashboard-content {
-      .sidebar {
-        position: fixed;
-        left: -250px;
-        height: calc(100vh - 70px);
-        z-index: 100;
-
-        &.collapsed {
-          left: -70px;
-        }
-
-        &.open {
-          left: 0;
-          width: 250px;
-
-          &.collapsed {
-            width: 70px;
-          }
-        }
-      }
-
-      .content-area {
-        margin-left: 0;
-        padding: 1rem;
-
-        .stats-cards {
-          grid-template-columns: 1fr;
-        }
-
-        .dashboard-widgets {
-          grid-template-columns: 1fr;
-        }
-      }
-    }
+/* Kiçik ekran */
+@media (max-width: 640px) {
+  .sidebar-ui {
+    width: 160px;
+    grid-template-rows: 80px auto 90px;
   }
-}
-
-// Animasiya
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.stat-card,
-.widget {
-  animation: fadeIn 0.5s ease-out;
 }

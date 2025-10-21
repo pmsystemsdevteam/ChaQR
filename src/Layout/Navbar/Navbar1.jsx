@@ -7,6 +7,7 @@ import { PiHamburgerLight } from "react-icons/pi";
 import { RiArrowDownSLine } from "react-icons/ri";
 import { NavLink, useNavigate } from "react-router-dom";
 import "./Navbar1.scss";
+import Logo from "../../Image/Logo.png";
 
 function Navbar1({ onSearch }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -39,7 +40,7 @@ function Navbar1({ onSearch }) {
     setVW();
     window.addEventListener("resize", setVW);
     window.addEventListener("orientationchange", setVW);
-    
+
     return () => {
       window.removeEventListener("resize", setVW);
       window.removeEventListener("orientationchange", setVW);
@@ -57,14 +58,14 @@ function Navbar1({ onSearch }) {
     };
 
     // Storage event-i üçün listener əlavə et
-    window.addEventListener('storage', handleStorageChange);
-    
+    window.addEventListener("storage", handleStorageChange);
+
     // Custom event üçün listener əlavə et (eyni səhifədə baş verən dəyişikliklər üçün)
-    window.addEventListener('basketUpdated', handleStorageChange);
+    window.addEventListener("basketUpdated", handleStorageChange);
 
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('basketUpdated', handleStorageChange);
+      window.removeEventListener("storage", handleStorageChange);
+      window.removeEventListener("basketUpdated", handleStorageChange);
     };
   }, []);
 
@@ -80,7 +81,7 @@ function Navbar1({ onSearch }) {
 
     // Hər 500ms-dən bir yoxla (isteğe bağlı, lakin performansı yoxlamaq lazımdır)
     const interval = setInterval(checkBasketChanges, 500);
-    
+
     return () => clearInterval(interval);
   }, [basketCount]);
 
@@ -163,9 +164,10 @@ function Navbar1({ onSearch }) {
       {/* Top Navigation */}
       <div className="navbar-top">
         <div className="navbar-container">
-          <div className={`logo-text ${isSearchOpen ? "delete" : ""}`}>
-            ChaQr
-          </div>
+          <img
+            src={Logo}
+            className={`logo-text ${isSearchOpen ? "delete" : ""}`}
+          />
 
           {/* Mobil layout üçün boş placeholder */}
           <div className={`hidden ${isSearchOpen ? "hiddenmode" : ""}`}>a</div>

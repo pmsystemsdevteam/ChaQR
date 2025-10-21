@@ -1,75 +1,152 @@
-import React, { useState } from 'react';
-import './LoginPage.scss';
+import React, { useMemo, useState } from "react";
+import { FiEye, FiEyeOff } from "react-icons/fi";
+import "./LoginPage.scss";
+import { RiDeleteBack2Line } from "react-icons/ri";
+import Logo from "../../Image/Logo.png";
+import { Link } from "react-router-dom";
 
-function LoginPage() {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
+function LoginPage({
+  onSubmit, // (pin)=>void  opsional
+  photoUrl = "https://images.unsplash.com/photo-1559339352-11d035aa65de?q=80&w=1600&auto=format&fit=crop",
+  logoUrl, // opsional: öz loqonu verə bilərsən
+}) {
+  const [pin, setPin] = useState("");
+  const [visible, setVisible] = useState(false);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // Burada giriş məntiqi əlavə ediləcək
-    console.log('Username:', username);
-    console.log('Password:', password);
-    alert('Giriş uğurla tamamlandı!');
+  const MAX = 6;
+
+  const cells = useMemo(() => {
+    const arr = Array(MAX).fill("");
+    for (let i = 0; i < pin.length && i < MAX; i++) arr[i] = pin[i];
+    return arr;
+  }, [pin]);
+
+  const pushChar = (ch) => {
+    if (pin.length >= MAX) return;
+    // Yalnız rəqəm istəsən, bu sətri aç: if (!/^\d$/.test(ch)) return;
+    setPin((p) => p + ch);
   };
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  const backspace = () => setPin((p) => p.slice(0, -1));
+
+  const handleSubmit = (e) => {
+    e?.preventDefault?.();
+    if (pin.length === MAX) {
+      onSubmit ? onSubmit(pin) : console.log("PIN:", pin);
+    }
   };
 
   return (
-    <div className="login-page">
-      <div className="login-container">
-        <div className="login-header">
-          <i className="fas fa-user-circle"></i>
-          <h2>Admin Panelə Daxil Olun</h2>
-        </div>
+    <div id="waiterLoginPage">
+      {/* Sol foto panel */}
+      <div
+        className="left"
+        style={{ backgroundImage: `url(${photoUrl})` }}
+        aria-hidden="true"
+      />
 
-        <form className="login-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="username">İstifadəçi Adı</label>
-            <div className="input-with-icon">
-              <i className="fas fa-user"></i>
-              <input
-                type="text"
-                id="username"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="İstifadəçi adınızı daxil edin"
-                required
-              />
-            </div>
+      {/* Sağ forma paneli */}
+      <div className="right">
+        <div className="panel">
+          {/* Logo */}
+          <div className="logoWrap">
+            {Logo ? (
+              <img src={Logo} alt="Logo" className="logo" />
+            ) : (
+              <div className="logo fallback">CHAQR</div>
+            )}
           </div>
 
-          <div className="form-group">
-            <label htmlFor="password">Parol</label>
-            <div className="input-with-icon">
-              <i className="fas fa-lock"></i>
-              <input
-                type={showPassword ? "text" : "password"}
-                id="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Parolunuzu daxil edin"
-                required
-              />
-              <button 
-                type="button" 
-                className="toggle-password"
-                onClick={togglePasswordVisibility}
-                aria-label={showPassword ? "Parolu gizlət" : "Parolu göstər"}
+          <p className="subtitle">Zəhmət olmasa pin kodu daxil edin</p>
+
+          {/* PIN xanaları */}
+          <form className="pinForm" onSubmit={handleSubmit}>
+            <div className="pinCells" role="group" aria-label="PIN">
+              {cells.map((c, i) => (
+                <div className="cell" key={i}>
+                  {visible ? c || "" : c ? "•" : ""}
+                </div>
+              ))}
+            </div>
+
+            {/* Rəqəm klaviaturası */}
+            <div
+              className="numpad"
+              role="group"
+              aria-label="Rəqəm klaviaturası"
+            >
+              {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className="key"
+                  onClick={() => pushChar(n)}
+                >
+                  {n}
+                </button>
+              ))}
+
+              {/* “.” — indi 1-1 silir */}
+              <button
+                type="button"
+                className="key"
+                onClick={() => setVisible((v) => !v)}
+                aria-label={visible ? "Gizlət" : "Göstər"}
               >
-                <i className={showPassword ? "fas fa-eye-slash" : "fas fa-eye"}></i>
+                {visible ? <FiEyeOff /> : <FiEye />}
+              </button>
+
+              <button
+                type="button"
+                className="key"
+                onClick={() => pushChar("0")}
+              >
+                0
+              </button>
+
+              {/* Qırmızı göz: görünən/gizli */}
+
+              <button type="button" className="key eye" onClick={backspace}>
+                <RiDeleteBack2Line />
               </button>
             </div>
-          </div>
 
+            {/* Gizli input – klaviaturadan dəstək (Backspace/Enter) */}
+            <input
+              className="hiddenInput"
+              inputMode="numeric"
+              autoComplete="one-time-code"
+              autoFocus
+              value={pin}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, "").slice(0, MAX);
+                setPin(v);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Backspace") {
+                  e.preventDefault();
+                  backspace();
+                } else if (/^\d$/.test(e.key) && pin.length < MAX) {
+                  e.preventDefault();
+                  pushChar(e.key);
+                } else if (e.key === "Enter") {
+                  handleSubmit(e);
+                }
+              }}
+            />
 
-          <button type="submit" className="login-button">Daxil Ol</button>
-        </form>
-
-    
+            {/* Daxil ol */}
+            <Link
+              to={pin.length === MAX ? "/waiter/allTable" : "#"}
+              className={`submitBtn ${pin.length !== MAX ? "disabled" : ""}`}
+              onClick={(e) => {
+                if (pin.length !== MAX) e.preventDefault(); // ❌ klikləmənin qarşısını alır
+              }}
+            >
+              Daxil ol
+            </Link>
+          </form>
+        </div>
       </div>
     </div>
   );

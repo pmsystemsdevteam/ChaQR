@@ -41,7 +41,7 @@ export default function WaiterAlltablePage() {
       setLoading(true);
       setErr("");
       try {
-        const res = await fetch("https://efficiently-leads-table-august.trycloudflare.com/api/tables/");
+        const res = await fetch("http://172.20.5.167:8001/api/tables/");
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 

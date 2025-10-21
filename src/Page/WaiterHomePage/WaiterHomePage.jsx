@@ -59,7 +59,7 @@ export default function WaiterHomePage() {
 
     const load = async () => {
       try {
-        const res = await fetch("https://efficiently-leads-table-august.trycloudflare.com/api/baskets/");
+        const res = await fetch("http://172.20.5.167:8001/api/baskets/");
         const json = await res.json();
         if (!isMounted) return;
         setData(Array.isArray(json) ? json : []);

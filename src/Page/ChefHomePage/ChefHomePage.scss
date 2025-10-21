@@ -26,6 +26,7 @@
     border: none;
     border-right: 1px solid #ff8640;
     border-radius: 0px;
+
     &:last-child {
       border-right: none;
     }
@@ -44,8 +45,6 @@
       margin: 5px 0;
     }
 
-    
-
     &.active {
       background-color: #ff8640;
 
@@ -63,14 +62,14 @@
 
   .orderPage {
     display: flex;
-    justify-content: flex-start; // center yerine flex-start
-    overflow-x: auto; // sadece yatay scroll
-    overflow-y: hidden; // dikey scroll'u gizle
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
     width: 90%;
-    gap: 20px; // kartlar arası boşluk
-    padding: 10px 0; // üst-alt padding
-    scroll-behavior: smooth; // smooth scroll
-    // Scroll bar stilini özelleştirme (opsiyonel)
+    gap: 20px;
+    padding: 10px 0;
+    scroll-behavior: smooth;
+
     &::-webkit-scrollbar {
       height: 2px;
     }
@@ -89,79 +88,14 @@
       background: #e57332;
     }
   }
-  .order-actions {
-    display: flex;
-    justify-content: center;
-    gap: 15px;
-    margin-top: 15px;
-
-    button {
-      border: none;
-      outline: none;
-      font-size: 14px;
-      padding: 8px 24px;
-      border-radius: 6px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      font-weight: 500;
-    }
-
-    .accept {
-      background: #ff8640;
-      color: #fff;
-
-      &:hover {
-        background: #ff955d;
-      }
-    }
-
-    .reject {
-      background: #f3f3f3;
-      color: #444;
-
-      &:hover {
-        background: #e7e7e7;
-      }
-    }
-
-    .finish {
-      background: #4caf50; // Yeşil renk
-      color: #fff;
-      padding: 8px 30px;
-
-      &:hover {
-        background: #11b059;
-      }
-    }
-
-    .reject {
-      background: #CCAF14; // Yeşil renk
-      color: #fff;
-      padding: 8px 30px;
-
-      &:hover {
-        background: #CCAF14;
-      }
-    }
-    .completed-badge {
-      color: #11b059;
-      font-size: 50px;
-      display: flex;
-    }
-  }
-  .orderPaper {
-    flex-shrink: 0; // kartların küçülmesini engelle
-    // ... diğer stiller aynı kalacak
-  }
 
   .orderPaper {
+    flex-shrink: 0;
     width: 404px;
     background: #fff;
     border: 1px solid #e5e5e5;
     border-radius: 6px;
-    // padding: 20px 25px;
     color: #222;
-    // box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
 
     h3 {
       font-size: 18px;
@@ -214,13 +148,11 @@
         border-top: 1px solid #ccc;
         padding-bottom: 6px;
         text-align: center;
-        // padding: 6px 0px 8px 0px;
         padding: 10px 25px;
       }
 
       td {
         font-size: 14px;
-        // padding: 6px 0;
         color: #222;
         padding: 10px 25px;
       }
@@ -277,6 +209,7 @@
           background: #ff955d;
         }
       }
+
       .reject {
         background: #f3f3f3;
         color: #444;
@@ -284,6 +217,214 @@
         &:hover {
           background: #e7e7e7;
         }
+      }
+
+      .finish {
+        background: #4caf50;
+        color: #fff;
+        padding: 8px 30px;
+
+        &:hover {
+          background: #11b059;
+        }
+      }
+
+      .completed-badge {
+        color: #11b059;
+        font-size: 50px;
+        display: flex;
+      }
+    }
+  }
+
+  // =============== CONFIRMATION POPUP ===============
+  .confirmation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10001;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    animation: fadeIn 0.3s ease-out;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  .confirmation-content {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    max-width: 450px;
+    width: 90%;
+    padding: 40px 30px 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+    animation: modalSlideIn 0.3s ease-out;
+    text-align: center;
+
+    .confirmation-icon {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+      animation: scaleIn 0.4s ease-out 0.2s both;
+
+      svg {
+        width: 64px;
+        height: 64px;
+      }
+    }
+
+    @keyframes scaleIn {
+      from {
+        opacity: 0;
+        transform: scale(0);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes modalSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-30px) scale(0.95);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .confirmation-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 32px;
+      font-family: "Poppins", sans-serif;
+      line-height: 1.4;
+    }
+
+    .confirmation-buttons {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+
+      .confirmation-btn {
+        flex: 1;
+        padding: 14px 24px;
+        border: none;
+        border-radius: 8px;
+        font-size: 15px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-family: "Poppins", sans-serif;
+
+        &:active {
+          transform: scale(0.97);
+        }
+
+        &.back-btn {
+          background: #f5f5f5;
+          color: #333;
+
+          &:hover {
+            background: #e0e0e0;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          }
+        }
+
+        &.accept-btn {
+          background: #ff8640;
+          color: #fff;
+
+          &:hover {
+            background: #e57332;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 134, 64, 0.3);
+          }
+        }
+
+        &.reject-btn {
+          background: #ccaf14;
+          color: #fff;
+
+          &:hover {
+            background: #b89d12;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(204, 175, 20, 0.3);
+          }
+        }
+
+        &.finish-btn {
+          background: #11b059;
+          color: #fff;
+
+          &:hover {
+            background: #0e9147;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(17, 176, 89, 0.3);
+          }
+        }
+      }
+    }
+  }
+}
+
+// =============== RESPONSIVE DESIGN ===============
+@media (max-width: 640px) {
+  #chefHomePage {
+    .confirmation-content {
+      padding: 32px 24px 24px;
+      max-width: 95%;
+
+      .confirmation-icon svg {
+        width: 52px;
+        height: 52px;
+      }
+
+      .confirmation-title {
+        font-size: 18px;
+        margin-bottom: 24px;
+      }
+
+      .confirmation-buttons {
+        flex-direction: column;
+
+        .confirmation-btn {
+          width: 100%;
+        }
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  #chefHomePage {
+    .confirmation-content {
+      padding: 28px 20px 20px;
+
+      .confirmation-title {
+        font-size: 16px;
+      }
+
+      .confirmation-buttons .confirmation-btn {
+        padding: 12px 20px;
+        font-size: 14px;
       }
     }
   }
