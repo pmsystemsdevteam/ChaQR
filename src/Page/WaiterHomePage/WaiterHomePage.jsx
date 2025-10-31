@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import "./WaiterHomePage.scss";
+import ChaqrLoading from "../../Components/Loading/Loading";
 
-// --- Status xəritələri ---
 const STATUS_LABELS = {
   waitingWaiter: "Ofisiant gözləyir",
   waitingBill: "Hesab gözləyir",
@@ -20,7 +20,6 @@ const STATUS_COLORS = {
   deliveredFood: "a",
 };
 
-// food_status içində ən son TRUE olan addımı tap; yoxdursa table.status götür
 function computeStatusKey(basket) {
   const orderSteps = ["sendOrder", "sendKitchen", "makeFood", "deliveredFood"];
   let latest = null;
@@ -35,11 +34,8 @@ function computeStatusKey(basket) {
   return latest || basket?.table?.status || "empty";
 }
 
-// updated üçün tarix seçimi
 function getUpdatedAt(b) {
-  // API-də varsa updated_at prioritetdir
   if (b?.updated_at) return new Date(b.updated_at);
-  // yoxdursa created_at
   if (b?.created_at) return new Date(b.created_at);
   return new Date(0);
 }
@@ -49,22 +45,31 @@ function formatTime(d) {
   return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
-export default function WaiterHomePage() {
-  const [data, setData] = useState([]);
+function WaiterHomePage() {
+  const [baskets, setBaskets] = useState([]);
+  const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
-  // API-dən gətir + polling
   useEffect(() => {
     let isMounted = true;
 
     const load = async () => {
       try {
-        const res = await fetch("http://172.20.5.167:8001/api/baskets/");
-        const json = await res.json();
+        // ✅ Baskets (sifarişlər)
+        const basketRes = await fetch(`${API_BASE_URL}/api/baskets/`);
+        const basketJson = await basketRes.json();
+        
+        // ✅ Tables (ofisiant çağırışı)
+        const tableRes = await fetch(`${API_BASE_URL}/api/tables/`);
+        const tableJson = await tableRes.json();
+
         if (!isMounted) return;
-        setData(Array.isArray(json) ? json : []);
+        
+        setBaskets(Array.isArray(basketJson) ? basketJson : []);
+        setTables(Array.isArray(tableJson) ? tableJson : []);
       } catch (e) {
-        console.error("Baskets fetch error:", e);
+        console.error("Fetch error:", e);
       } finally {
         if (isMounted) setLoading(false);
       }
@@ -72,74 +77,111 @@ export default function WaiterHomePage() {
 
     load();
     const id = setInterval(load, 5000);
+    
     return () => {
       isMounted = false;
       clearInterval(id);
     };
   }, []);
 
-  // Hər masa üçün ən SON basket (updated-a görə), empty olanları gizlət
+  // ✅ Basket-ləri emal et (sifarişlər)
   const latestPerTable = useMemo(() => {
-    // updated-ə görə artan sort, sonra map ilə sonuncunu saxlamaq üçün
-    const sorted = [...data].sort((a, b) => getUpdatedAt(a) - getUpdatedAt(b));
-
-    const map = new Map(); // key = table.id (fallback: table_num)
+    const sorted = [...baskets].sort((a, b) => getUpdatedAt(a) - getUpdatedAt(b));
+    const map = new Map();
+    
     for (const b of sorted) {
       const key = b?.table?.id ?? b?.table?.table_num;
-      if (key != null) map.set(key, b); // eyni masadan yalnız ən son qalsın
+      if (key != null) map.set(key, b);
     }
 
-    // map dəyərlərini çək, EMPTY olanları at, sonra updated-desc sıralayıb qaytar
     return Array.from(map.values())
-      .filter((b) => computeStatusKey(b) !== "empty") // 🔥 boş olanlar görünməsin
-      .sort((a, b) => getUpdatedAt(b) - getUpdatedAt(a)); // 🔥 ən yenisi önə
-  }, [data]);
+      .filter((b) => computeStatusKey(b) !== "empty")
+      .sort((a, b) => getUpdatedAt(b) - getUpdatedAt(a));
+  }, [baskets]);
+
+  // ✅ Table-ləri filter et (ofisiant çağırışı)
+  const waitingTables = useMemo(() => {
+    return tables.filter((t) => t.status === "waitingWaiter");
+  }, [tables]);
 
   if (loading) {
     return (
-      <div id="waiterHomePage">
-        <h2 className="title">Sifariş məlumatları</h2>
-        <div className="loading">Yüklənir...</div>
+      <div id="waiterHomePage" style={{ overflow: "hidden" }}>
+        <h2 className="title">Bildirişlər</h2>
+        <ChaqrLoading />
       </div>
     );
   }
 
   return (
     <div id="waiterHomePage">
-      <h2 className="title">Sifariş məlumatları</h2>
-      <div className="allPage">
-        {latestPerTable.map((b) => {
-          const tableNum = b?.table?.table_num ?? "-";
-          const orderNo = b?.order_number ?? "-";
-          const updatedAt = getUpdatedAt(b);
-          const statusKey = computeStatusKey(b);
-          const statusText = STATUS_LABELS[statusKey] || statusKey;
-          const colorClass = STATUS_COLORS[statusKey] || "gray";
+      <h2 className="title">Bildirişlər</h2>
 
-          return (
-            <div className="statusBox" key={b.id}>
-              <div className="up">
-                <p>Masa nömrəsi : №{tableNum}</p>
-                <span>Sifariş verilmə vaxtı: {formatTime(updatedAt)}</span>
-              </div>
-              <div className="down">
-                <span>Sifariş nömrəsi : {orderNo}</span>
-                <div
-                  className={`status ${colorClass}`}
-                  data-status={statusText}
-                  title={statusKey}
-                >
-                  {statusText}
+      {/* ✅ Ofisiant Çağırışları */}
+      {waitingTables.length > 0 && (
+        <div className="section">
+          <h3 className="title">Ofisiant Çağırışları</h3>
+          <div className="allPage">
+            {waitingTables.map((table) => (
+              <div className="statusBox" key={`table-${table.id}`}>
+                <div className="up">
+                  <p>Masa nömrəsi : №{table.table_num}</p>
+                  <span>Çağırış vaxtı: {formatTime(new Date(table.created_at))}</span>
+                </div>
+                <div className="down">
+                  <span>Stul sayı: {table.chair_number}</span>
+                  <div className="status b" data-status="Ofisiant gözləyir">
+                    Ofisiant gözləyir
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            ))}
+          </div>
+        </div>
+      )}
 
-        {latestPerTable.length === 0 && (
-          <div className="loading">Aktiv sifariş yoxdur.</div>
-        )}
-      </div>
+      {/* ✅ Sifarişlər */}
+      {latestPerTable.length > 0 && (
+        <div className="section">
+          <h3 className="title">Aktiv Sifarişlər</h3>
+          <div className="allPage">
+            {latestPerTable.map((b) => {
+              const tableNum = b?.table?.table_num ?? "-";
+              const orderNo = b?.order_number ?? "-";
+              const updatedAt = getUpdatedAt(b);
+              const statusKey = computeStatusKey(b);
+              const statusText = STATUS_LABELS[statusKey] || statusKey;
+              const colorClass = STATUS_COLORS[statusKey] || "gray";
+
+              return (
+                <div className="statusBox" key={`basket-${b.id}`}>
+                  <div className="up">
+                    <p>Masa nömrəsi : №{tableNum}</p>
+                    <span>Sifariş verilmə vaxtı: {formatTime(updatedAt)}</span>
+                  </div>
+                  <div className="down">
+                    <span>Sifariş nömrəsi : {orderNo}</span>
+                    <div
+                      className={`status ${colorClass}`}
+                      data-status={statusText}
+                      title={statusKey}
+                    >
+                      {statusText}
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ✅ Heç bir bildiriş yoxdursa */}
+      {waitingTables.length === 0 && latestPerTable.length === 0 && (
+        <div className="loading">Bildiriş yoxdur</div>
+      )}
     </div>
   );
 }
+
+export default WaiterHomePage;

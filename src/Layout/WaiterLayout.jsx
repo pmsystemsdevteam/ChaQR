@@ -1,33 +1,64 @@
-// src/Layout/WaiterLayout.jsx
 import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
-import ChefNav from "./ChefNav/ChefNav";
+import { Routes, Route, Navigate } from "react-router-dom";
+import ChefWaiterNav from "./ChefWaiterNav/ChefWaiterNav";
 import WaiterHomePage from "../Page/WaiterHomePage/WaiterHomePage";
-import WaiterLoginPage from "../Page/LoginPage/LoginPage";
 import WaiterAlltablePage from "../Page/WaiterAlltablePage/WaiterAlltablePage";
 import WaiterMenuPage from "../Page/WaiterMenuPage/WaiterMenuPage";
-import WaiterButton from "../Components/WaiterButton/WaiterButton";
+import WaiterLogin from "../Page/WaiterLogin/WaiterLogin";
+
 
 function WaiterLayout() {
-  const location = useLocation();
-  const isLoginPage = location.pathname.includes("/waiter/login");
-
   return (
     <div id="waiterLayout">
-      {/* login səhifəsində nav gizlədilir */}
-      {!isLoginPage && <ChefNav />}
-      <WaiterButton />
-
-      <main className="waiterLayout__content">
-        <Routes>
-          <Route path="/" element={<WaiterHomePage />} />
-          <Route path="/login" element={<WaiterLoginPage />} />
-          <Route path="/allTable" element={<WaiterAlltablePage />} />
-          <Route path="/waiterMenu" element={<WaiterMenuPage />} />
-        </Routes>
-      </main>
+      <Routes>
+        <Route path="/login" element={<WaiterLogin />} />
+        <Route path="/" element={<PublicLayout><WaiterHomePage /></PublicLayout>} />
+        <Route
+          path="/allTable"
+          element={
+            <ProtectedRoute>
+              <WaiterAlltablePage />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/waiterMenu"
+          element={
+            <ProtectedRoute>
+              <WaiterMenuPage />
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
     </div>
   );
 }
+
+
+function PublicLayout({ children }) {
+  return (
+    <>
+      <ChefWaiterNav userType="waiter" isPublic={true} />
+      <main className="waiterLayout__content">{children}</main>
+    </>
+  );
+}
+
+
+function ProtectedRoute({ children }) {
+  const token = localStorage.getItem("waiterToken");
+  
+  if (!token) {
+    return <Navigate to="/waiter/login" replace />;
+  }
+
+  return (
+    <>
+      <ChefWaiterNav userType="waiter" isPublic={false} />
+      <main className="waiterLayout__content">{children}</main>
+    </>
+  );
+}
+
 
 export default WaiterLayout;

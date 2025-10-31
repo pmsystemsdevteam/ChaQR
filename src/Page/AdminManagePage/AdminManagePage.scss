@@ -262,7 +262,7 @@ $status-danger: #d9a808;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 9999;
+    z-index: 20;
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     animation: fadeIn 0.3s ease-out;
@@ -440,6 +440,7 @@ $status-danger: #d9a808;
           color: #333;
           font-size: 16px;
           font-weight: 400;
+          
 
           &:first-child {
             text-align: left;
@@ -632,7 +633,7 @@ $status-danger: #d9a808;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10001; // Order modal-dan yuxarıda
+    z-index: 21; // Order modal-dan yuxarıda
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
     animation: fadeIn 0.3s ease-out;

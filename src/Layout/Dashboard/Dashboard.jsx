@@ -1,23 +1,32 @@
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import "./Dashboard.scss";
 import logo from "../../Image/AdminLogo.png";
 import { MdOutlineLogout } from "react-icons/md";
+
 function Dashboard() {
+  const navigate = useNavigate();
+
   const menuItems = [
     { id: 1, name: "İdarə sistemi", path: "/admin" },
     { id: 2, name: "Bütün sifarişlər", path: "/admin/orders" },
-    { id: 3, name: "Məhsullar", path: "/admin/products-add" },
-    { id: 4, name: "Kateqoriyalar", path: "/admin/category-add" },
-    { id: 4, name: "Arxitektura", path: "/admin/architecture" },
+    { id: 3, name: "Masalar", path: "/admin/tables" },
+    { id: 4, name: "Məhsullar", path: "/admin/products-add" },
+    { id: 5, name: "Kateqoriyalar", path: "/admin/category-add" },
+    { id: 6, name: "Maliyyə", path: "/admin/finance" },
   ];
+
+  const handleLogout = () => {
+    localStorage.removeItem("adminAccessToken");
+    localStorage.removeItem("adminRefreshToken");
+    localStorage.removeItem("adminUser");
+    navigate("/admin/login");
+  };
 
   return (
     <aside className="sidebar-ui">
-      {/* Logo */}
       <img src={logo} alt="" />
 
-      {/* Menu */}
       <ul className="menu">
         {menuItems.map((item) => (
           <li key={item.id}>
@@ -34,9 +43,8 @@ function Dashboard() {
         ))}
       </ul>
 
-      {/* Logout */}
       <div className="logout-wrap">
-        <button type="button" className="logout-btn">
+        <button type="button" className="logout-btn" onClick={handleLogout}>
           Çıxış
           <span className="key">
             <MdOutlineLogout />

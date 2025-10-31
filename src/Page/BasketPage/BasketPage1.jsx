@@ -18,7 +18,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import axios from "axios";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 function BasketPage1() {
   const [isEmpty, setIsEmpty] = useState(false);
@@ -26,18 +26,30 @@ function BasketPage1() {
   const [allProducts, setAllProducts] = useState([]);
   const [showPopup, setShowPopup] = useState(false);
   const [orderNote, setOrderNote] = useState("");
+  const navigate = useNavigate();
+  const [servicePercent, setServicePercent] = useState(null);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   useEffect(() => {
     const myBasket = JSON.parse(localStorage.getItem("my_basket")) || [];
 
+    // Settings-dən service_percent çək
     axios
-      .get("http://172.20.5.167:8001/api/products/")
+       .get(`${API_BASE_URL}/api/restaurant/settings/`)
+    .then((res) => {
+      // API list tipli cavab qaytarırsa və ya birbaşa obyekt qaytarırsa
+      const settingsData = Array.isArray(res.data) ? res.data[0] : res.data;
+      setServicePercent(parseFloat(settingsData.service_percent));
+    })
+    .catch((err) => console.error(err));
+
+    // Məhsulları çək
+    axios
+      .get(`${API_BASE_URL}/api/products/`)
       .then((res) => {
         setAllProducts(res.data);
-
         const basketData = res.data.filter((p) => myBasket.includes(p.id));
         setBasketProducts(basketData);
-
         setIsEmpty(basketData.length === 0);
       })
       .catch((err) => console.error(err));
@@ -55,7 +67,7 @@ function BasketPage1() {
       }
 
       // 🔹 1. Cədvəli tap
-      const tablesRes = await axios.get("http://172.20.5.167:8001/api/tables/");
+      const tablesRes = await axios.get(`${API_BASE_URL}/api/tables/`);
       const tables = Array.isArray(tablesRes.data) ? tablesRes.data : [];
       const foundTable = tables.find(
         (t) => Number(t.table_num) === Number(tableNum)
@@ -68,10 +80,9 @@ function BasketPage1() {
 
       // 🔹 2. Masanın statusunu dəyiş (YENİ sifariş üçün)
       if (!isExtraOrder) {
-        await axios.patch(
-          `http://172.20.5.167:8001/api/tables/${foundTable.id}/`,
-          { status: "sendOrder" }
-        );
+        await axios.patch(`${API_BASE_URL}/api/tables/${foundTable.id}/`, {
+          status: "sendOrder",
+        });
       }
 
       const currentTime = new Date().toISOString();
@@ -82,7 +93,7 @@ function BasketPage1() {
 
         // 🔹 Mövcud sifarişi əldə et
         const existingOrderRes = await axios.get(
-          `http://172.20.5.167:8001/api/baskets/${existingOrderId}/`
+          `${API_BASE_URL}/api/baskets/${existingOrderId}/`
         );
         const existingOrder = existingOrderRes.data;
 
@@ -118,8 +129,8 @@ function BasketPage1() {
             orderNote.trim() ||
             existingOrder.note ||
             "Xüsusi not qeyd edilməyib.",
-          service_cost: (allItemsTotal * 0.1).toFixed(2),
-          total_cost: (allItemsTotal * 1.1).toFixed(2),
+          service_cost: (allItemsTotal * (servicePercent / 100)).toFixed(2),
+          total_cost: (allItemsTotal * (1 + servicePercent / 100)).toFixed(2),
           total_time: allItemsTime,
           status: "sendOrder",
           food_status: existingOrder.food_status || [
@@ -133,7 +144,7 @@ function BasketPage1() {
         };
 
         response = await axios.patch(
-          `http://172.20.5.167:8001/api/baskets/${existingOrderId}/`,
+          `${API_BASE_URL}/api/baskets/${existingOrderId}/`,
           payload,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -171,11 +182,9 @@ function BasketPage1() {
           extra_items: [], // Yeni sifarişdə extra_items boş
         };
 
-        response = await axios.post(
-          "http://172.20.5.167:8001/api/baskets/",
-          payload,
-          { headers: { "Content-Type": "application/json" } }
-        );
+        response = await axios.post(`${API_BASE_URL}/api/baskets/`, payload, {
+          headers: { "Content-Type": "application/json" },
+        });
         console.log("✅ Yeni sifariş yaradıldı:", response.data);
 
         // Yeni id-ni yadda saxla
@@ -189,6 +198,8 @@ function BasketPage1() {
       setBasketProducts([]);
       setIsEmpty(true);
       setOrderNote("");
+
+      navigate("/myOrder"); // 🎯 Birbaşa yönləndirmə
     } catch (err) {
       console.error("❌ Sifariş xətası:", err.response?.data || err);
       alert("Sifariş göndərilmədi. Yenidən cəhd edin.");
@@ -354,7 +365,7 @@ function BasketPage1() {
 
   const calculateServiceFee = () => {
     const total = parseFloat(calculateTotal());
-    return (total * 0.1).toFixed(2);
+return (total * (servicePercent / 100)).toFixed(2);
   };
 
   const calculateGrandTotal = () => {

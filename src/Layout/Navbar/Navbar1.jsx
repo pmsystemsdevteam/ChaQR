@@ -87,9 +87,9 @@ function Navbar1({ onSearch }) {
 
   // Bütün mövcud dillər
   const languages = [
-    { code: "az", label: "Az" },
-    { code: "en", label: "En" },
-    { code: "ru", label: "Ru" },
+    { code: "az", label: "AZ" },
+    { code: "en", label: "EN" },
+    { code: "ru", label: "RU" },
   ];
 
   // Hazırki dili təyin et (2 hərf olaraq normalize et)
@@ -252,7 +252,7 @@ function Navbar1({ onSearch }) {
                 aria-label="Dil seç"
               >
                 <span className="language-text">
-                  {languages.find((l) => l.code === currentLang)?.label || "Az"}
+                  {languages.find((l) => l.code === currentLang)?.label || "AZ"}
                 </span>
                 <RiArrowDownSLine
                   className={`dropdown-icon ${langOpen ? "rotated" : ""}`}

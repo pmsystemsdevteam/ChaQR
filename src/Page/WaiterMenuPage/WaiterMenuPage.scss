@@ -24,6 +24,11 @@
         flex-shrink: 0;
         border-radius: 8px;
         background: #fff;
+        transition: 0.3s ease-in-out;
+        &:hover {
+          border: 1px solid #fd8548;
+          
+        }
         .icon {
           display: flex;
           width: 40px;
@@ -35,6 +40,7 @@
           flex-shrink: 0;
           border-radius: 4px;
           font-size: 27px;
+          transition: 0.3s ease-in-out;
           background-color: #f5f7fa;
           color: #6e6e6e;
         }
@@ -259,15 +265,23 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
-      padding: 12px 0 16px 0;
+      padding: 12px;
       border-bottom: 0.5px solid #6e6e6e;
       position: relative;
+      &:hover{
+        background-color: #ff8640a7;
+      }
       .deleteBtn {
         display: flex;
         position: absolute;
         top: 20px;
         right: 10px;
-    font-size: 20px;
+        font-size: 20px;
+        cursor: pointer;
+        &:hover{
+          color: #fd8548;
+         
+        }
       }
       img {
         width: 70px;

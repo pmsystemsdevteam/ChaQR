@@ -9,6 +9,8 @@ import { ImUserTie } from "react-icons/im";
 import axios from "axios";
 import { PiWarningCircle } from "react-icons/pi";
 import { Link } from "react-router-dom";
+import { MdOutlineError } from "react-icons/md";
+import { BiSad } from "react-icons/bi";
 
 function MyOrderPage1() {
   const [order, setOrder] = useState(null);
@@ -19,7 +21,8 @@ function MyOrderPage1() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const [showDelete, setShowDelete] = useState(false);
   const [steps, setSteps] = useState([]);
-  const [callingWaiter, setCallingWaiter] = useState(false); // Yeni state
+  const [callingWaiter, setCallingWaiter] = useState(false);
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   function ShoWBtn() {
     setShowPaymentPopup((p) => !p);
@@ -27,7 +30,7 @@ function MyOrderPage1() {
 
   // Ofisiant çağırma funksiyası
   const callWaiter = async () => {
-    if (callingWaiter) return; // Əgər artıq çağırılıbsa, dayandır
+    if (callingWaiter) return;
 
     setCallingWaiter(true);
 
@@ -39,9 +42,8 @@ function MyOrderPage1() {
         return;
       }
 
-      // Masa statusunu yenilə
       const response = await axios.patch(
-        `http://172.20.5.167:8001/api/tables/${order.table.id}/`,
+        `${API_BASE_URL}/api/tables/${order.table.id}/`,
         {
           status: "waitingWaiter",
         }
@@ -50,8 +52,7 @@ function MyOrderPage1() {
       if (response.status === 200) {
         alert("Ofisiant çağırıldı ✅");
 
-        // Sifariş məlumatlarını yenilə
-        const res = await axios.get("http://172.20.5.167:8001/api/baskets/");
+        const res = await axios.get(`${API_BASE_URL}/api/baskets/`);
         const list = Array.isArray(res.data) ? res.data : [];
         const currentOrder = list.find((o) => o.id.toString() === orderId);
 
@@ -66,7 +67,16 @@ function MyOrderPage1() {
       setCallingWaiter(false);
     }
   };
-
+  const formatDateTime = (isoString) => {
+    if (!isoString) return "";
+    const date = new Date(isoString);
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
+  };
   // food_status → steps
   const generateSteps = (foodStatus) => {
     if (!foodStatus || !Array.isArray(foodStatus)) return [];
@@ -104,81 +114,173 @@ function MyOrderPage1() {
       .filter(Boolean);
   };
 
-  useEffect(() => {
-    const fetchOrder = async () => {
-      try {
-        const tableNum = localStorage.getItem("table_num");
+ useEffect(() => {
+  const fetchOrder = async () => {
+    try {
+      const tableNum = localStorage.getItem("table_num");
 
-        if (!tableNum) {
-          setError("Masa nömrəsi tapılmadı.");
-          setLoading(false);
-          return;
-        }
-
-        // Sifarişləri çək
-        const res = await axios.get("http://172.20.5.167:8001/api/baskets/");
-        const list = Array.isArray(res.data) ? res.data : [];
-
-        // Eyni masa nömrəsi olan sifarişləri tap
-        const filtered = list.filter(
-          (o) => Number(o.table?.table_num) === Number(tableNum)
-        );
-
-        if (filtered.length === 0) {
-          setError("Bu masa üçün sifariş tapılmadı.");
-          setLoading(false);
-          localStorage.removeItem("order_id");
-          return;
-        }
-
-        // Ən yeni sifarişi götür
-        const latest = filtered.sort(
-          (a, b) => new Date(b.created_at) - new Date(a.created_at)
-        )[0];
-
-        setOrder(latest);
-        localStorage.setItem("order_id", latest.id.toString());
-
-        if (latest.food_status) {
-          const dynamicSteps = generateSteps(latest.food_status);
-          setSteps(dynamicSteps);
-        }
-
-        // Məhsulları çək
-        const prodRes = await axios.get(
-          "http://172.20.5.167:8001/api/products/"
-        );
-        setProducts(Array.isArray(prodRes.data) ? prodRes.data : []);
-      } catch (err) {
-        setError("Sifariş məlumatı alınmadı.");
-        console.error(err);
-        localStorage.removeItem("order_id");
-      } finally {
+      if (!tableNum || tableNum === "null" || tableNum === "undefined") {
+        setError("no_order");
         setLoading(false);
+        localStorage.removeItem("order_id");
+        return;
       }
-    };
 
-    fetchOrder();
-  }, []);
+      const res = await axios.get(`${API_BASE_URL}/api/baskets/`);
+
+      if (!res.data || (Array.isArray(res.data) && res.data.length === 0)) {
+        setError("no_order");
+        setLoading(false);
+        localStorage.removeItem("order_id");
+        return;
+      }
+
+      const list = Array.isArray(res.data) ? res.data : [];
+
+      const filtered = list.filter(
+        (o) => o.table && Number(o.table?.table_num) === Number(tableNum)
+      );
+
+      if (filtered.length === 0) {
+        setError("no_order");
+        setLoading(false);
+        localStorage.removeItem("order_id");
+        return;
+      }
+
+      const latest = filtered.sort(
+        (a, b) => new Date(b.created_at) - new Date(a.created_at)
+      )[0];
+
+      // ✅ Masa statusu yoxla
+      if (latest.table?.status === "empty") {
+        setError("no_order");
+        setLoading(false);
+        localStorage.removeItem("order_id");
+        localStorage.removeItem("table_num"); // ✅ table_num-u da sil
+        return;
+      }
+
+      setOrder(latest);
+      localStorage.setItem("order_id", latest.id.toString());
+
+      if (latest.food_status) {
+        const dynamicSteps = generateSteps(latest.food_status);
+        setSteps(dynamicSteps);
+      }
+
+      const prodRes = await axios.get(`${API_BASE_URL}/api/products/`);
+      setProducts(Array.isArray(prodRes.data) ? prodRes.data : []);
+
+      setError(null);
+      setLoading(false);
+    } catch (err) {
+      console.error("Server xətası:", err);
+      if (axios.isAxiosError(err)) {
+        setError("server_error");
+      } else {
+        setError("server_error");
+      }
+      localStorage.removeItem("order_id");
+      setLoading(false);
+    }
+  };
+
+  fetchOrder();
+}, [API_BASE_URL]);
+
 
   function handleDeleteOrder() {
     setShowDelete((p) => !p);
   }
 
-  if (loading)
+  // Loading state
+  if (loading) {
     return (
-      <div className="loading">
-        <p>Yüklənir...</p>
-      </div>
+      <section id="myOrderPage1">
+        <div className="frontPage">
+          <img src={Left} className="left" alt="left-decor" />
+          <img src={Right} className="right" alt="right-decor" />
+        </div>
+        <div className="container">
+          <div className="status-box loading-box">
+            <div className="spinner"></div>
+            <h2>Yüklənir...</h2>
+            <p>Sifariş məlumatları yüklənir, zəhmət olmasa gözləyin.</p>
+          </div>
+        </div>
+      </section>
     );
+  }
 
-  if (error)
+  // Error state - sifariş yoxdur
+  if (error === "no_order") {
     return (
-      <div className="error">
-        <p>{error}</p>
-      </div>
-    );
+      <section id="myOrderPage1">
+        <div className="frontPage">
+          <img src={Left} className="left" alt="left-decor" />
+          <img src={Right} className="right" alt="right-decor" />
+        </div>
+        <div className="container">
+          <header className="page-head">
+            <h1>Sifarişlər</h1>
+            <p>Sifarişlərinizi izləyin.</p>
+            <p className="order-number">
+              Sifariş nömrəsi: {order?.order_number}
+            </p>
+          </header>
 
+          <div className="status-box no-order-box">
+            <BiSad className="status-icon sad-icon" />
+            <h2>Aktiv sifariş yoxdur</h2>
+            <p>Hal-hazırda heç bir aktiv sifarişiniz yoxdur.</p>
+            <p className="sub-text">
+              Sifariş vermək üçün aşağıdakı düyməyə klikləyin.
+            </p>
+            <Link to="/product" className="primary-btn">
+              Yeni sifariş yarat
+            </Link>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Error state - server xətası
+  if (error === "server_error" || error) {
+    return (
+      <section id="myOrderPage1">
+        <div className="frontPage">
+          <img src={Left} className="left" alt="left-decor" />
+          <img src={Right} className="right" alt="right-decor" />
+        </div>
+        <div className="container">
+          <header className="page-head">
+            <h1>Sifarişlər</h1>
+            <p>Sifarişlərinizi izləyin.</p>
+          </header>
+
+          <div className="status-box error-box">
+            <MdOutlineError className="status-icon error-icon" />
+            <h2>Xəta baş verdi</h2>
+            <p>Sifariş məlumatları yüklənərkən xəta baş verdi.</p>
+            <p className="sub-text">
+              Zəhmət olmasa səhifəni yeniləyin və ya bir az sonra yenidən cəhd
+              edin.
+            </p>
+            <button
+              onClick={() => window.location.reload()}
+              className="primary-btn"
+            >
+              Səhifəni yenilə
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // Normal order display
   if (!order) return null;
 
   const {
@@ -191,16 +293,13 @@ function MyOrderPage1() {
     created_at,
   } = order;
 
-  // Tarix formatı
   const orderTime = new Date(created_at).toLocaleTimeString("az-AZ", {
     hour: "2-digit",
     minute: "2-digit",
   });
 
-  // productID -> məhsul
   const findProduct = (id) => products.find((p) => p.id === Number(id));
 
-  // Əsas məhsullar və `extra_items` qrupu ayır
   const mainItems = Array.isArray(items)
     ? items.filter((it) => it && typeof it === "object" && "name_az" in it)
     : [];
@@ -285,6 +384,7 @@ function MyOrderPage1() {
         <header className="page-head">
           <h1>Sifarişlər</h1>
           <p>Sifarişlərinizi izləyin.</p>
+          <p className="order-number">Sifariş nömrəsi: {order?.order_number}</p>
         </header>
 
         {/* 🧾 Dinamik Sifariş */}
@@ -342,7 +442,7 @@ function MyOrderPage1() {
                   >
                     <span>{p?.name_az || `Məhsul #${ex.productID}`}</span>
                     <span>{ex.count}</span>
-                    <span>{total} </span>
+                    <span>{total} ₼</span>
                   </div>
                 );
               })}
@@ -391,7 +491,7 @@ function MyOrderPage1() {
 
                 <div className="meta">
                   <span className={`t ${step.status === true ? "on" : ""}`}>
-                    {step.time}
+                    {formatDateTime(step.time)}
                   </span>
                   <span
                     className={`s ${

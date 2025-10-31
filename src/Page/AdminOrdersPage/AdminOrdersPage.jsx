@@ -1,108 +1,118 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./AdminOrdersPage.scss";
 import { FiCheck } from "react-icons/fi";
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 function AdminOrdersPage() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [selectedStatuses, setSelectedStatuses] = useState([
-    "Ləğv edilen sifarişlər",
-    "Hazırlanan sifarişlər",
-  ]);
+ const [selectedStatuses, setSelectedStatuses] = useState([
+  "cancelled",
+  "preparing",
+  "delivered",
+  "new",
+  "pending",
+]);
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const statusOptions = [
-    "Ləğv edilen sifarişlər",
-    "Hazırlanan sifarişlər",
-    "Bitən sifarişlər",
-  ];
+ const statusOptions = [
+  { value: "pending", label: "Yeni sifarişlər" },        // Qəbul edilib, hələ mətbəxə göndərilməyib
+  { value: "new", label: "Mətbəxə göndərilən" },        // Mətbəxə göndərilib, qəbul olunmayıb
+  { value: "preparing", label: "Hazırlanan sifarişlər" }, // Chef qəbul edib, hazırlanır
+  { value: "delivered", label: "Bitən sifarişlər" },      // Təhvil verilib
+  { value: "cancelled", label: "Ləğv edilən sifarişlər" }, // Ləğv olunub
+];
 
-  const toggleStatus = (status) => {
-    if (selectedStatuses.includes(status)) {
-      setSelectedStatuses(selectedStatuses.filter((s) => s !== status));
-    } else {
-      setSelectedStatuses([...selectedStatuses, status]);
+  useEffect(() => {
+    fetchOrders();
+  }, []);
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_BASE_URL}/api/baskets/`);
+      setOrders(response.data);
+    } catch (error) {
+      console.error("Sifarişlər yüklənmədi:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const orders = [
-    {
-      id: 1,
-      table: 12,
-      orderTime: "12:25",
-      status: "new",
-      mainItems: [{ id: 1, name_az: "Qatıq", count: 1, cost: 4.5 }],
-      extraGroup: [],
-      service_cost: 0.0,
-      total_cost: 9.0,
-      total_time: 15,
-      note: "Zəhmət olmasa yeməkdə pul bibəri az istifadə edərsiniz.",
-    },
-    {
-      id: 2,
-      table: 12,
-      orderTime: "12:25",
-      status: "preparing",
-      mainItems: [
-        { id: 1, name_az: "Qatıq", count: 1, cost: 4.5 },
-        { id: 2, name_az: "Çörək", count: 2, cost: 2.0 },
-      ],
-      extraGroup: [],
-      service_cost: 0.0,
-      total_cost: 12.5,
-      total_time: 20,
-      note: "",
-    },
-    {
-      id: 3,
-      table: 8,
-      orderTime: "13:15",
-      status: "ready",
-      mainItems: [
-        { id: 1, name_az: "Dönər", count: 1, cost: 8.0 },
-        { id: 2, name_az: "Kola", count: 1, cost: 3.0 },
-      ],
-      extraGroup: [],
-      service_cost: 0.0,
-      total_cost: 11.0,
-      total_time: 18,
-      note: "Əlavə sous",
-    },
-  ];
+  const toggleStatus = (statusValue) => {
+    if (selectedStatuses.includes(statusValue)) {
+      setSelectedStatuses(selectedStatuses.filter((s) => s !== statusValue));
+    } else {
+      setSelectedStatuses([...selectedStatuses, statusValue]);
+    }
+  };
 
-  // Status mətnini qaytarır
+  const getOrderStatus = (order) => {
+    if (order.is_cancelled) return "cancelled";
+    if (order.food_status?.[3]?.deliveredFood) return "delivered";
+    if (order.food_status?.[2]?.makeFood) return "preparing";
+    if (order.food_status?.[1]?.sendKitchen) return "new";
+    return "pending";
+  };
+
   const getStatusText = (status) => {
     switch (status) {
       case "new":
         return "Yeni sifariş";
       case "preparing":
         return "Hazırlanır";
-      case "ready":
-        return "Hazırdır";
       case "delivered":
         return "Təhvil verilib";
       case "cancelled":
         return "Ləğv edilib";
+      case "pending":
+        return "Gözləyir";
       default:
         return "Naməlum";
     }
   };
 
-  // Status rəngini qaytarır
   const getStatusClass = (status) => {
     switch (status) {
       case "new":
         return "status-new";
       case "preparing":
         return "status-preparing";
-      case "ready":
-        return "status-ready";
       case "delivered":
         return "status-delivered";
       case "cancelled":
         return "status-cancelled";
+      case "pending":
+        return "status-pending";
       default:
         return "";
     }
   };
+
+  const formatTime = (isoString) => {
+    if (!isoString) return "N/A";
+    const date = new Date(isoString);
+    return date.toLocaleTimeString("az-AZ", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
+  // Filtr tətbiq et
+  const filteredOrders = orders.filter((order) => {
+    const status = getOrderStatus(order);
+    return selectedStatuses.includes(status);
+  });
+
+  if (loading) {
+    return (
+      <section id="adminOrdersPage">
+        <div className="loading">Yüklənir...</div>
+      </section>
+    );
+  }
 
   return (
     <section id="adminOrdersPage">
@@ -119,17 +129,17 @@ function AdminOrdersPage() {
             <div className="sort-menu">
               {statusOptions.map((status) => (
                 <div
-                  key={status}
+                  key={status.value}
                   className="sort-menu-item"
-                  onClick={() => toggleStatus(status)}
+                  onClick={() => toggleStatus(status.value)}
                 >
-                  <span>{status}</span>
+                  <span>{status.label}</span>
                   <div
                     className={`checkbox ${
-                      selectedStatuses.includes(status) ? "checked" : ""
+                      selectedStatuses.includes(status.value) ? "checked" : ""
                     }`}
                   >
-                    {selectedStatuses.includes(status) && <FiCheck />}
+                    {selectedStatuses.includes(status.value) && <FiCheck />}
                   </div>
                 </div>
               ))}
@@ -139,51 +149,61 @@ function AdminOrdersPage() {
       </div>
 
       <div className="order-grid">
-        {orders.map((order) => (
-          <div key={order.id} className="ticket">
-            <div className="ticket-head">
-              <div className="brand">
-                <img
-                  src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmg6YrfolWPXiQAQIz0s473J174_G0za4lwA&s"
-                  alt="brand"
-                />
+        {filteredOrders.length === 0 ? (
+          <div className="no-orders">Sifariş tapılmadı</div>
+        ) : (
+          filteredOrders.map((order) => {
+            const status = getOrderStatus(order);
+
+            return (
+              <div key={order.id} className="ticket">
+                <div className="ticket-head">
+                  <div className="brand">
+                    <img
+                      src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTmg6YrfolWPXiQAQIz0s473J174_G0za4lwA&s"
+                      alt="brand"
+                    />
+                  </div>
+                  <span className="time">
+                    Sifariş vaxtı: {formatTime(order.created_at)}
+                  </span>
+                </div>
+
+                <div className="row two masa-row">
+                  <span>Masa</span>
+                  <span>№ {order.table?.table_num || "N/A"}</span>
+                </div>
+
+                <div className="row three header">
+                  <span>Məhsul</span>
+                  <span>Say</span>
+                  <span>Qiymət</span>
+                </div>
+
+                {order.items?.map((it) => (
+                  <div className="row three" key={it.id}>
+                    <span>{it.name_az}</span>
+                    <span>{it.count}</span>
+                    <span>
+                      {(Number(it.cost) * Number(it.count)).toFixed(2)} ₼
+                    </span>
+                  </div>
+                ))}
+
+                <div className="row two total">
+                  <span>Ümumi</span>
+                  <span>{Number(order.total_cost || 0).toFixed(2)} ₼</span>
+                </div>
+
+                {order.note && <p className="note">Qeyd: {order.note}</p>}
+
+                <div className={`status-badge ${getStatusClass(status)}`}>
+                  {getStatusText(status)}
+                </div>
               </div>
-              <span className="time">Sifariş vaxtı: {order.orderTime}</span>
-            </div>
-
-            <div className="row two masa-row">
-              <span>Masa</span>
-              <span>№ {order.table}</span>
-            </div>
-
-            <div className="row three header">
-              <span>Məhsul</span>
-              <span>Say</span>
-              <span>Qiymət</span>
-            </div>
-
-            {order.mainItems.map((it) => (
-              <div className="row three" key={it.id}>
-                <span>{it.name_az}</span>
-                <span>{it.count}</span>
-                <span>{(Number(it.cost) * Number(it.count)).toFixed(2)} ₼</span>
-              </div>
-            ))}
-
-            <div className="row two total">
-              <span>Ümumi</span>
-              <span>{order.total_cost.toFixed(2)} ₼</span>
-            </div>
-
-            {order.note && <p className="note">Qeyd: {order.note}</p>}
-
-            {/* Status məlumatı */}
-            <div className={`status-badge ${getStatusClass(order.status)}`}>
-              {getStatusText(order.status)}
-            </div>
-          
-          </div>
-        ))}
+            );
+          })
+        )}
       </div>
     </section>
   );

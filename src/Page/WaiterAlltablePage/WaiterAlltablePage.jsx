@@ -1,7 +1,6 @@
-// WaiterAlltablePage.jsx
 import React, { useEffect, useMemo, useState } from "react";
 import "./WaiterAlltablePage.scss";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 const STATUS_LABELS = {
   waitingWaiter: "Ofisiant gözləyir",
@@ -10,6 +9,7 @@ const STATUS_LABELS = {
   sendKitchen: "Hazırlanır",
   makeFood: "Hazırlanır",
   deliveredFood: "Hazırdı",
+  empty: "Boşdur",
 };
 
 const STATUS_COLORS = {
@@ -21,18 +21,18 @@ const STATUS_COLORS = {
   deliveredFood: "a",
 };
 
-// ISO vaxtı olduğu kimi göstər (UTC/lokal çevirmə etmir)
 function formatTimeFromISO(iso) {
   if (typeof iso !== "string") return "—";
-  // 2025-09-01T06:54:27.007374Z  -> "06:54"
   const m = iso.match(/T(\d{2}):(\d{2})/);
   return m ? `${m[1]}:${m[2]}` : "—";
 }
 
-export default function WaiterAlltablePage() {
+function WaiterAlltablePage() {
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(true);
   const [err, setErr] = useState("");
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const navigate = useNavigate();
 
   useEffect(() => {
     let cancelled = false;
@@ -41,27 +41,15 @@ export default function WaiterAlltablePage() {
       setLoading(true);
       setErr("");
       try {
-        const res = await fetch("http://172.20.5.167:8001/api/tables/");
+        const res = await fetch(`${API_BASE_URL}/api/tables/`);
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
 
         const normalized = (Array.isArray(data) ? data : []).map((t) => ({
-          id: t.id ?? `${t.table_num ?? t.number ?? Math.random()}`,
-          number: t.table_num ?? t.number ?? "—",
+          id: t.id,
+          number: t.table_num ?? "—",
           status: t.status ?? "sendOrder",
-          orders_count:
-            t.orders_count ??
-            t.ordersCount ??
-            t.order_count ??
-            t.orderCount ??
-            0,
-          time:
-            t.created_at ??
-            t.createdAt ??
-            t.time ??
-            t.updated_at ??
-            t.updatedAt ??
-            null, // ⬅️
+          time: t.time ?? t.created_at ?? null,
         }));
 
         if (!cancelled) setTables(normalized);
@@ -79,29 +67,31 @@ export default function WaiterAlltablePage() {
   }, []);
 
   const cards = useMemo(() => {
-    return (
-      tables.length
-        ? tables
-        : Array.from({ length: 16 }, (_, i) => ({
-            id: `sk-${i}`,
-            number: 12,
-            status:
-              i === 0
-                ? "sendOrder"
-                : i === 1
-                ? "waitingBill"
-                : i === 2
-                ? "makeFood"
-                : i === 3
-                ? "deliveredFood"
-                : "waitingWaiter",
-            orders_count: 5,
-            // skeleton üçün nümunə ISO
-            time: "2025-09-01T06:54:27.007374Z",
-            __skeleton: tables.length === 0,
-          }))
-    ).slice(0, 16);
+    return tables.length
+      ? tables
+      : Array.from({ length: 16 }, (_, i) => ({
+          id: `sk-${i}`,
+          number: 12,
+          status:
+            i === 0
+              ? "sendOrder"
+              : i === 1
+              ? "waitingBill"
+              : i === 2
+              ? "makeFood"
+              : i === 3
+              ? "deliveredFood"
+              : "waitingWaiter",
+          orders_count: 5,
+          time: "2025-09-01T06:54:27.007374Z",
+          __skeleton: tables.length === 0,
+        }));
   }, [tables]);
+
+  const handleTableClick = (tableId) => {
+    localStorage.setItem("selectedTableId", tableId);
+    navigate("/waiter/waiterMenu");
+  };
 
   return (
     <div id="waiterAllTablePage">
@@ -114,32 +104,36 @@ export default function WaiterAlltablePage() {
       )}
 
       <div className="allTableBox">
-        {cards.map((t, idx) => {
-          const colorKey = STATUS_COLORS[t.status] ?? "b";
-          const statusClass = `status ${colorKey}`;
-          const isSkeleton = !!t.__skeleton && loading;
+        {!loading && tables.length === 0 ? (
+          <div className="noData">Masa yoxdur</div>
+        ) : (
+          cards.map((t, idx) => {
+            const colorKey = STATUS_COLORS[t.status] ?? "b";
+            const statusClass = `status ${colorKey}`;
+            const isSkeleton = !!t.__skeleton && loading;
 
-          return (
-            <Link
-              to={"/waiter/waiterMenu"}
-              key={t.id ?? idx}
-              className={`table ${statusClass} ${isSkeleton ? "skeleton" : ""}`}
-            >
-              <div className="up">
-                <p>{`Masa № ${t.number}`}</p>
-                <span>{formatTimeFromISO(t.time)}</span>
-              </div>
+            return (
+              <div
+                key={t.id ?? idx}
+                className={`table ${statusClass} ${isSkeleton ? "skeleton" : ""}`}
+                onClick={() => !isSkeleton && handleTableClick(t.id)}
+                style={{ cursor: isSkeleton ? "default" : "pointer" }}
+              >
+                <div className="up">
+                  <p>{`Masa № ${t.number}`}</p>
+                  <span>{formatTimeFromISO(t.time)}</span>
+                </div>
 
-              <div className="down">
-                <span>
-                  {STATUS_LABELS[t.status] ??
-                    `${t.orders_count} ədəd sifariş verildi`}
-                </span>
+                <div className="down">
+                  <span>{STATUS_LABELS[t.status] ?? t.status}</span>
+                </div>
               </div>
-            </Link>
-          );
-        })}
+            );
+          })
+        )}
       </div>
     </div>
   );
 }
+
+export default WaiterAlltablePage;

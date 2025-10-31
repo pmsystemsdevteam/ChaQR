@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="az">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>ProDev | Elit Tədris Platforması</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-color: #5d3eff;
+            --secondary-color: #ff6b6b;
+            --success-color: #1dd1a1;
+            --background-color: #f4f5f7;
+            --card-background: #ffffff;
+            --text-color: #0b0f19;
+            --subtle-text-color: #616a7d;
+            --border-color: #e5e7eb;
+            --code-bg: #1e293b;
+            --code-text: #e2e8f0;
+            --soft-shadow: 0 12px 35px rgba(0, 0, 0, 0.08);
+            --font-family: 'Manrope', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--background-color);
+            font-family: var(--font-family);
+            color: var(--text-color);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow: hidden;
+        }
+
+        .app-container { height: 100vh; display: flex; flex-direction: column; }
+        .page { flex-grow: 1; overflow-y: auto; padding: 1.5rem 1.25rem 100px; display: none; }
+        .page.active { display: block; }
+        
+        .page-enter { animation: fadeIn 0.4s ease-out forwards; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Login Səhifəsi */
+        #page-login {
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        #page-login.active {
+            display: flex;
+        }
+
+        .login-card {
+            background: var(--card-background);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+        }
+
+        .login-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-logo h1 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-logo p {
+            font-size: 0.95rem;
+            color: var(--subtle-text-color);
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 0.9rem 1rem;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-family: var(--font-family);
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+
+        .error-message {
+            background-color: #fee;
+            color: #c33;
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-message.visible {
+            display: block;
+        }
+
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(93, 62, 255, 0.3);
+        }
+
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(93, 62, 255, 0.4);
+        }
+
+        .btn-login:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Dashboard və Digər Səhifələr */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .header-title { font-size: 1.75rem; font-weight: 800; }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color), #8b5cf6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+        }
+
+        .logout-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .logout-btn svg {
+            width: 24px;
+            height: 24px;
+            stroke: var(--subtle-text-color);
+        }
+
+        /* Progress Stats */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: var(--card-background);
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--soft-shadow);
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--primary-color);
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-card p {
+            font-size: 0.85rem;
+            color: var(--subtle-text-color);
+        }
+
+        /* Lesson Info */
+        .lesson-info { margin-bottom: 2rem; }
+        .lesson-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; text-align: center; }
+
+        .step-progress-container { display: flex; gap: 0.5rem; height: 6px; }
+        .step-progress-item { flex: 1; background-color: var(--border-color); border-radius: 3px; transition: background-color 0.4s ease; }
+        .step-progress-item.active { background-color: var(--primary-color); transform: scale(1.05); }
+        .step-progress-item.completed { background-color: var(--primary-color); }
+
+        #content-container { min-height: 400px; }
+        .content-card {
+            background-color: var(--card-background);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: var(--soft-shadow);
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeIn 0.5s forwards ease-out;
+        }
+
+        .card-header { margin-bottom: 1.5rem; }
+        .card-step-type { font-size: 0.8rem; font-weight: 700; color: var(--primary-color); text-transform: uppercase; letter-spacing: 0.5px; }
+        .card-question { font-size: 1.2rem; font-weight: 700; margin-top: 0.5rem; }
+        
+        .card-answer {
+            background-color: #f9fafb;
+            border-radius: 16px;
+            padding: 1.25rem;
+            border: 1px solid var(--border-color);
+        }
+        .card-answer p { font-size: 0.95rem; color: var(--subtle-text-color); }
+        
+        .card-task-description { font-size: 0.95rem; color: var(--subtle-text-color); margin-bottom: 1.5rem; }
+        .code-input-area {
+            background-color: var(--code-bg); color: var(--code-text);
+            border-radius: 12px; padding: 1rem; font-family: 'Courier New', monospace;
+            font-size: 0.9rem; width: 100%; min-height: 180px;
+            border: 1px solid #333; resize: vertical; margin-bottom: 1.5rem;
+        }
+        .solution-block {
+            border-radius: 16px; background-color: var(--code-bg);
+            padding: 1.25rem;
+        }
+        .solution-block-header { font-size: 0.9rem; font-weight: 600; color: var(--success-color); margin-bottom: 1rem; }
+        .solution-block pre {
+            margin: 0; white-space: pre-wrap; word-wrap: break-word;
+            color: var(--code-text); font-family: 'Courier New', monospace; font-size: 0.9rem;
+        }
+
+        .next-button-container { margin-top: 2rem; }
+        .btn-next {
+            width: 100%; padding: 1.1rem; border-radius: 16px; border: none;
+            background-color: var(--primary-color); color: white;
+            font-family: var(--font-family); font-weight: 700; font-size: 1rem;
+            cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(93, 62, 255, 0.3);
+        }
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(93, 62, 255, 0.4); }
+
+        .bottom-nav {
+            position: fixed; bottom: 0; left: 0; right: 0; display: none;
+            justify-content: space-around; background-color: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border-top: 1px solid var(--border-color); padding: 0.5rem 0; z-index: 1000;
+        }
+
+        .bottom-nav.active {
+            display: flex;
+        }
+
+        .nav-item {
+            display: flex; flex-direction: column; align-items: center; color: var(--subtle-text-color);
+            font-size: 0.7rem; font-weight: 600; cursor: pointer; transition: color 0.3s ease;
+            flex-grow: 1; padding: 0.75rem 0; position: relative;
+        }
+        .nav-item svg { width: 24px; height: 24px; margin-bottom: 4px; stroke-width: 2; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item.active::before {
+            content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 30px; height: 4px; background-color: var(--primary-color); border-radius: 2px;
+        }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden; transition: all 0.3s ease; z-index: 2000;
+        }
+        .modal-overlay.visible { opacity: 1; visibility: visible; }
+        
+        .modal-content {
+            background: var(--card-background); border-radius: 24px; padding: 2.5rem 2rem;
+            text-align: center; width: 90%; max-width: 350px;
+            transform: scale(0.9); transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal-content { transform: scale(1); }
+
+        .modal-icon { color: var(--success-color); margin-bottom: 1rem; }
+        .modal-icon svg { width: 60px; height: 60px; }
+        .modal-title { font-size: 1.5rem; font-weight: 800; margin-bottom: 0.5rem; }
+        .modal-subtitle { font-size: 1rem; color: var(--subtle-text-color); margin-bottom: 1.5rem; }
+        .xp-gain { font-size: 1.25rem; font-weight: 700; color: var(--primary-color); margin-bottom: 2rem; }
+        .btn-modal-close {
+            width: 100%; padding: 1rem; border-radius: 16px; border: none;
+            background-color: var(--primary-color); color: white;
+            font-weight: 700; font-size: 1rem; cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="app-container">
+        
+        <!-- Login Səhifəsi -->
+        <div id="page-login" class="page">
+            <div class="login-card page-enter">
+                <div class="login-logo">
+                    <h1>ProDev</h1>
+                    <p>Peşəkar Tədris Platforması</p>
+                </div>
+
+                <div class="error-message" id="error-message"></div>
+
+                <form id="login-form">
+                    <div class="input-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="email@example.com" required>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="password">Şifrə</label>
+                        <input type="password" id="password" placeholder="••••••••" autocomplete="off" required> 
+                    </div>
+
+                    <button type="submit" class="btn-login" id="login-btn">Daxil Ol</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Dashboard Səhifəsi -->
+        <div id="page-dashboard" class="page">
+            <header class="header">
+                <h1 class="header-title">Dashboard</h1>
+                <div class="user-info">
+                    <div class="user-avatar" id="user-avatar"></div>
+                    <button class="logout-btn" onclick="handleLogout()">
+                        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3 id="total-completed">0</h3>
+                    <p>Tamamlanan Dərslər</p>
+                </div>
+                <div class="stat-card">
+                    <h3 id="total-xp">0</h3>
+                    <p>Toplam XP</p>
+                </div>
+            </div>
+
+            <h2 style="margin-bottom: 1rem;">Mövzular</h2>
+            <div class="topics-grid" style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                <div class="stat-card" style="cursor: pointer;" onclick="navigateToLesson('django')">
+                    <h3 style="font-size: 1.25rem;">Django</h3>
+                    <p id="django-progress">0 / 15 tamamlandı</p>
+                </div>
+                <div class="stat-card" style="cursor: pointer;" onclick="navigateToLesson('react')">
+                    <h3 style="font-size: 1.25rem;">React</h3>
+                    <p id="react-progress">0 / 15 tamamlandı</p>
+                </div>
+                <div class="stat-card" style="cursor: pointer;" onclick="navigateToLesson('javascript')">
+                    <h3 style="font-size: 1.25rem;">JavaScript</h3>
+                    <p id="javascript-progress">0 / 15 tamamlandı</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dərs Səhifəsi -->
+        <div id="page-lesson" class="page">
+            <header class="header">
+                <button class="logout-btn" onclick="navigateToPage('dashboard')" style="padding: 0.5rem;">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </button>
+                <h1 id="lesson-topic-title" class="header-title">Django</h1>
+                <div style="width: 24px;"></div>
+            </header>
+            
+            <section class="lesson-info">
+                <h2 id="lesson-title" class="lesson-title"></h2>
+                <div class="step-progress-container" id="step-progress"></div>
+            </section>
+
+            <main id="content-container"></main>
+        </div>
+
+        <nav class="bottom-nav" id="bottom-nav">
+            <div class="nav-item active" data-page="dashboard" onclick="navigateToPage('dashboard')">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                    <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                </svg>
+                <span>Ana Səhifə</span>
+            </div>
+        </nav>
+    </div>
+
+    <div id="reward-modal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-icon">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                    <path d="M12 12l-4 4 2 2 6-6-2-2-2 2z"></path>
+                </svg>
+            </div>
+            <h2 class="modal-title">Təbriklər!</h2>
+            <p class="modal-subtitle">Dərsi uğurla bitirdin!</p>
+            <p id="xp-gain" class="xp-gain">+10 XP</p>
+            <button class="btn-modal-close" onclick="closeRewardModal()">Əla!</button>
+        </div>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCaR4HoNSPR1KRvIc_-CAjbPWP_Vf9K5Ts",
+            authDomain: "ai-test-a4533.firebaseapp.com",
+            databaseURL: "https://ai-test-a4533-default-rtdb.firebaseio.com",
+            projectId: "ai-test-a4533",
+            storageBucket: "ai-test-a4533.firebasestorage.app",
+            messagingSenderId: "742363652843",
+            appId: "1:742363652843:web:ade35e08eb2fb60d4f14ae",
+            measurementId: "G-M09387GM62"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+
+        window.auth = auth;
+        window.signInWithEmailAndPassword = signInWithEmailAndPassword;
+        window.signOut = signOut;
+
+        // Auth state observer
+        onAuthStateChanged(auth, (user) => {
+            const loginPage = document.getElementById('page-login');
+            const bottomNav = document.getElementById('bottom-nav');
+            
+            if (user) {
+                // İstifadəçi daxil olub - login səhifəsini gizlət
+                loginPage.style.display = 'none';
+                bottomNav.classList.add('active');
+                showPage('dashboard');
+                loadUserProgress();
+                updateUserAvatar(user.email);
+            } else {
+                // İstifadəçi çıxış edib - yalnız login göstər
+                loginPage.style.display = 'flex';
+                bottomNav.classList.remove('active');
+                showPage('login');
+            }
+        });
+    </script>
+
+    <script>
+        let allData = { django: null, react: null, javascript: null };
+        let userProgress = {};
+
+        let state = {
+            currentTopic: null,
+            currentLessonIndex: 0,
+            currentStep: 0,
+        };
+
+        // Login Form Handler
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const loginBtn = document.getElementById('login-btn');
+            const errorMsg = document.getElementById('error-message');
+
+            loginBtn.disabled = true;
+            loginBtn.textContent = 'Yüklənir...';
+            errorMsg.classList.remove('visible');
+
+            try {
+                await window.signInWithEmailAndPassword(window.auth, email, password);
+            } catch (error) {
+                errorMsg.textContent = 'Email və ya şifrə yanlışdır!';
+                errorMsg.classList.add('visible');
+                loginBtn.disabled = false;
+                loginBtn.textContent = 'Daxil Ol';
+            }
+        });
+
+        window.handleLogout = async () => {
+            await window.signOut(window.auth);
+        };
+
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => {
+                p.classList.remove('active', 'page-enter');
+            });
+            const page = document.getElementById(`page-${pageId}`);
+            if (page) {
+                page.classList.add('active');
+                setTimeout(() => page.classList.add('page-enter'), 10);
+            }
+        }
+
+        function updateUserAvatar(email) {
+            const avatar = document.getElementById('user-avatar');
+            avatar.textContent = email.charAt(0).toUpperCase();
+        }
+
+        function loadUserProgress() {
+            const userId = window.auth.currentUser?.uid;
+            if (!userId) return;
+
+            const savedProgress = localStorage.getItem(`progress_${userId}`);
+            userProgress = savedProgress ? JSON.parse(savedProgress) : {
+                django: { completed: [], xp: 0 },
+                react: { completed: [], xp: 0 },
+                javascript: { completed: [], xp: 0 }
+            };
+
+            updateDashboardStats();
+        }
+
+        function saveUserProgress() {
+            const userId = window.auth.currentUser?.uid;
+            if (!userId) return;
+            localStorage.setItem(`progress_${userId}`, JSON.stringify(userProgress));
+            updateDashboardStats();
+        }
+
+        function updateDashboardStats() {
+            const totalCompleted = Object.values(userProgress).reduce((sum, topic) => sum + topic.completed.length, 0);
+            const totalXP = Object.values(userProgress).reduce((sum, topic) => sum + topic.xp, 0);
+
+            document.getElementById('total-completed').textContent = totalCompleted;
+            document.getElementById('total-xp').textContent = totalXP;
+
+            document.getElementById('django-progress').textContent = `${userProgress.django.completed.length} / 15 tamamlandı`;
+            document.getElementById('react-progress').textContent = `${userProgress.react.completed.length} / 15 tamamlandı`;
+            document.getElementById('javascript-progress').textContent = `${userProgress.javascript.completed.length} / 15 tamamlandı`;
+        }
+
+        window.navigateToPage = (pageId) => {
+            showPage(pageId);
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.toggle('active', item.dataset.page === pageId);
+            });
+        };
+
+        async function loadDataForTopic(topic) {
+            if (allData[topic]) return allData[topic];
+            try {
+                const response = await fetch(`${topic}.json`);
+                const data = await response.json();
+                allData[topic] = data;
+                return data;
+            } catch (error) {
+                console.error('Xəta:', error);
+                return null;
+            }
+        }
+
+        window.navigateToLesson = async (topic) => {
+            const topicData = await loadDataForTopic(topic);
+            if (!topicData || !topicData[0]) {
+                alert("Məlumat yüklənə bilmədi.");
+                return;
+            }
+
+            state.currentTopic = topic;
+            state.currentLessonIndex = 0;
+            state.currentStep = 0;
+
+            document.getElementById('lesson-topic-title').textContent = topic.charAt(0).toUpperCase() + topic.slice(1);
+            document.getElementById('lesson-title').textContent = topicData[0].lessonTitle;
+
+            showPage('lesson');
+            renderCurrentStep();
+        };
+
+        function renderCurrentStep() {
+            const { currentTopic, currentLessonIndex, currentStep } = state;
+            const lesson = allData[currentTopic][currentLessonIndex];
+            const isTheory = currentStep < lesson.theory_questions.length;
+            const itemIndex = isTheory ? currentStep : currentStep - lesson.theory_questions.length;
+            const item = isTheory ? lesson.theory_questions[itemIndex] : lesson.practice_tasks[itemIndex];
+
+            const contentEl = document.getElementById('content-container');
+            contentEl.innerHTML = '';
+            const card = document.createElement('div');
+            card.className = 'content-card';
+
+            let cardHTML = '';
+            if (isTheory) {
+                cardHTML = `
+                    <div class="card-header">
+                        <span class="card-step-type">Nəzəriyyə</span>
+                        <h3 class="card-question">${item.question}</h3>
+                    </div>
+                    <div class="card-answer">
+                        <p>${item.answer}</p>
+                    </div>
+                `;
+            } else {
+                cardHTML = `
+                    <div class="card-header">
+                        <span class="card-step-type">Praktika</span>
+                        <h3 class="card-question">${item.title}</h3>
+                    </div>
+                    <p class="card-task-description">${item.description}</p>
+                    <textarea class="code-input-area" placeholder="Həllinizi bura yazın..."></textarea>
+                    <div class="solution-block">
+                        <h4 class="solution-block-header">Nümunə Həll</h4>
+                        <pre><code>${item.solution.replace(/</g, "&lt;").replace(/>/g, "&gt;")}</code></pre>
+                    </div>
+                `;
+            }
+            cardHTML += `<div class="next-button-container"><button class="btn-next" onclick="nextStep()">Növbəti (+10 XP)</button></div>`;
+            card.innerHTML = cardHTML;
+            contentEl.appendChild(card);
+
+            updateProgressIndicator();
+        }
+
+        function updateProgressIndicator() {
+            const { currentTopic, currentLessonIndex, currentStep } = state;
+            const lesson = allData[currentTopic][currentLessonIndex];
+            const totalSteps = lesson.theory_questions.length + lesson.practice_tasks.length;
+            const stepProgressEl = document.getElementById('step-progress');
+            stepProgressEl.innerHTML = '';
+            for (let i = 0; i < totalSteps; i++) {
+                const stepItem = document.createElement('div');
+                stepItem.className = 'step-progress-item';
+                if (i < currentStep) stepItem.classList.add('completed');
+                if (i === currentStep) stepItem.classList.add('active');
+                stepProgressEl.appendChild(stepItem);
+            }
+        }
+
+        window.nextStep = () => {
+            const { currentTopic, currentLessonIndex } = state;
+            const lesson = allData[currentTopic][currentLessonIndex];
+            const totalSteps = lesson.theory_questions.length + lesson.practice_tasks.length;
+
+            userProgress[currentTopic].xp += 10;
+
+            if (state.currentStep < totalSteps - 1) {
+                state.currentStep++;
+                renderCurrentStep();
+            } else {
+                const stepId = `${currentTopic}_${currentLessonIndex}_${state.currentStep}`;
+                if (!userProgress[currentTopic].completed.includes(stepId)) {
+                    userProgress[currentTopic].completed.push(stepId);
+                }
+                saveUserProgress();
+                document.getElementById('reward-modal').classList.add('visible');
+            }
+        };
+
+        window.closeRewardModal = () => {
+            document.getElementById('reward-modal').classList.remove('visible');
+            navigateToPage('dashboard');
+        };
+    </script>
+</body>
+</html>

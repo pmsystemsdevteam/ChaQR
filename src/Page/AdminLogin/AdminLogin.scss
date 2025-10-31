@@ -1,0 +1,306 @@
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap");
+
+.adminLoginPage {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fffefb;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: "Poppins", sans-serif;
+  padding: 20px;
+
+  .loginContainer {
+    width: 100%;
+    max-width: 450px;
+
+    @media (max-width: 768px) {
+      max-width: 90%;
+    }
+
+    @media (max-width: 480px) {
+      max-width: 95%;
+    }
+
+    .loginBox {
+      border-radius: 8px;
+      border: 2px dashed rgba(253, 133, 72, 0.6);
+      background: #fffefb;
+      padding: 50px 40px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+
+      @media (max-width: 768px) {
+        padding: 40px 30px;
+      }
+
+      @media (max-width: 480px) {
+        padding: 30px 20px;
+      }
+
+      .logoSection {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 30px;
+
+        @media (max-width: 480px) {
+          margin-bottom: 25px;
+        }
+
+        .logo {
+          max-width: 150px;
+          height: auto;
+          object-fit: contain;
+
+          @media (max-width: 768px) {
+            max-width: 120px;
+          }
+
+          @media (max-width: 480px) {
+            max-width: 100px;
+          }
+        }
+      }
+
+      .loginHeader {
+        text-align: center;
+        margin-bottom: 40px;
+
+        @media (max-width: 480px) {
+          margin-bottom: 30px;
+        }
+
+        h1 {
+          color: #000;
+          font-size: 32px;
+          font-weight: 700;
+          margin-bottom: 10px;
+
+          @media (max-width: 768px) {
+            font-size: 28px;
+          }
+
+          @media (max-width: 480px) {
+            font-size: 24px;
+          }
+        }
+
+        p {
+          color: rgba(0, 0, 0, 0.6);
+          font-size: 15px;
+          font-weight: 400;
+
+          @media (max-width: 480px) {
+            font-size: 14px;
+          }
+        }
+      }
+
+      .loginForm {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+
+        @media (max-width: 480px) {
+          gap: 20px;
+        }
+
+        .errorMessage {
+          padding: 14px 16px;
+          background: rgba(253, 133, 72, 0.1);
+          border-radius: 6px;
+          border: 1px solid rgba(253, 133, 72, 0.3);
+          animation: shake 0.3s ease;
+
+          @media (max-width: 480px) {
+            padding: 12px 14px;
+          }
+
+          p {
+            color: #d63031;
+            font-size: 14px;
+            margin: 0;
+            text-align: center;
+
+            @media (max-width: 480px) {
+              font-size: 13px;
+            }
+          }
+        }
+
+        .formGroup {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+
+          @media (max-width: 480px) {
+            gap: 8px;
+          }
+
+          label {
+            color: #333;
+            font-size: 14px;
+            font-weight: 500;
+            padding-left: 4px;
+
+            @media (max-width: 480px) {
+              font-size: 13px;
+            }
+          }
+
+          input {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 6px;
+            border: 1px solid #d4d2c4;
+            background: #fff;
+            font-family: "Poppins", sans-serif;
+            font-size: 15px;
+            color: #000;
+            outline: none;
+            transition: all 0.3s ease;
+
+            &::placeholder {
+              color: #b1b5c3;
+            }
+
+            &:focus {
+              border-color: #fd8548;
+              background: #fff;
+              box-shadow: 0 0 0 3px rgba(253, 133, 72, 0.1);
+            }
+
+            @media (max-width: 768px) {
+              padding: 12px 14px;
+              font-size: 14px;
+            }
+
+            @media (max-width: 480px) {
+              padding: 12px;
+              font-size: 14px;
+            }
+          }
+
+          .passwordInputWrapper {
+            position: relative;
+            width: 100%;
+
+            input {
+              padding-right: 45px;
+            }
+
+            .togglePassword {
+              position: absolute;
+              right: 12px;
+              top: 50%;
+              transform: translateY(-50%);
+              background: none;
+              border: none;
+              cursor: pointer;
+              color: #666;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              padding: 4px;
+              transition: color 0.3s ease;
+
+              &:hover {
+                color: #fd8548;
+              }
+
+              &:focus {
+                outline: none;
+              }
+
+              svg {
+                width: 20px;
+                height: 20px;
+              }
+
+              @media (max-width: 480px) {
+                right: 10px;
+
+                svg {
+                  width: 18px;
+                  height: 18px;
+                }
+              }
+            }
+          }
+        }
+
+        .loginButton {
+          width: 100%;
+          height: 52px;
+          border-radius: 4px;
+          background: transparent;
+          padding: 1px;
+          border: 1px solid #a95930;
+          cursor: pointer;
+          font-family: "Poppins", sans-serif;
+          margin-top: 8px;
+          transition: all 0.3s ease;
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+
+          &:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(253, 133, 72, 0.3);
+          }
+
+          @media (max-width: 768px) {
+            height: 48px;
+          }
+
+          @media (max-width: 480px) {
+            height: 46px;
+            margin-top: 4px;
+          }
+
+          .buttonInner {
+            background: #fd8548;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 4px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+
+            &:hover {
+              background: #ed6826;
+            }
+
+            @media (max-width: 768px) {
+              font-size: 15px;
+            }
+
+            @media (max-width: 480px) {
+              font-size: 14px;
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-8px);
+  }
+  75% {
+    transform: translateX(8px);
+  }
+}

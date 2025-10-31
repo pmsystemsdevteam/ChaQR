@@ -1,88 +1,125 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./ChefHomePage.scss";
 import { IoCheckmarkCircleSharp } from "react-icons/io5";
 import { IoIosAlert } from "react-icons/io";
+import ChaqrLoading from "../../Components/Loading/Loading";
+
+const API_URL = "http://localhost:8000/api/chef";
 
 function ChefHomePage() {
   const [activeTab, setActiveTab] = useState("pending");
-  const [orderStatus, setOrderStatus] = useState({});
+  const [orders, setOrders] = useState([]);
+  const [stats, setStats] = useState({
+    pending: 0,
+    completed: 0,
+    cancelled: 0,
+  });
+  const [loading, setLoading] = useState(true);
 
   // Confirmation popup states
   const [showConfirmation, setShowConfirmation] = useState(false);
-  const [confirmationType, setConfirmationType] = useState(null); // 'accept', 'reject', 'finish'
-  const [selectedOrderId, setSelectedOrderId] = useState(null);
+  const [confirmationType, setConfirmationType] = useState(null);
+  const [selectedOrder, setSelectedOrder] = useState(null);
 
-  const orders = {
-    pending: 15,
-    completed: 15,
-    cancelled: 15,
+  // İlk yükləmə
+  useEffect(() => {
+    fetchStats();
+  }, []);
+
+  // Tab dəyişəndə
+  useEffect(() => {
+    fetchOrders(activeTab);
+  }, [activeTab]);
+
+  // Statistika
+  const fetchStats = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/stats/`);
+      if (response.data.success) {
+        setStats(response.data.stats);
+      }
+    } catch (error) {
+      console.error("Statistika xətası:", error);
+    }
   };
 
-  const orderData = [
-    { id: 231, table: "12" },
-    { id: 232, table: "13" },
-    { id: 233, table: "14" },
-    { id: 234, table: "15" },
-    { id: 235, table: "16" },
-    { id: 236, table: "17" },
-  ];
+  // Sifarişləri gətir
+  const fetchOrders = async (status) => {
+    setLoading(true);
+    try {
+      const response = await axios.get(`${API_URL}/orders/`, {
+        params: { status },
+      });
+      if (response.data.success) {
+        setOrders(response.data.orders);
+      }
+    } catch (error) {
+      console.error("Sifariş yükləmə xətası:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  // Qəbul et düyməsinə basıldıqda
-  const handleAcceptClick = (orderId) => {
-    setSelectedOrderId(orderId);
+  // Qəbul et
+  const handleAcceptClick = (order) => {
+    setSelectedOrder(order);
     setConfirmationType("accept");
     setShowConfirmation(true);
   };
 
-  // Ləğv et düyməsinə basıldıqda
-  const handleRejectClick = (orderId) => {
-    setSelectedOrderId(orderId);
+  // Ləğv et
+  const handleRejectClick = (order) => {
+    setSelectedOrder(order);
     setConfirmationType("reject");
     setShowConfirmation(true);
   };
 
-  // Bitir düyməsinə basıldıqda
-  const handleFinishClick = (orderId) => {
-    setSelectedOrderId(orderId);
+  // Bitir
+  const handleFinishClick = (order) => {
+    setSelectedOrder(order);
     setConfirmationType("finish");
     setShowConfirmation(true);
   };
 
-  // Confirmation təsdiqlənəndə
-  const handleConfirmAction = () => {
-    if (confirmationType === "accept") {
-      setOrderStatus((prev) => ({
-        ...prev,
-        [selectedOrderId]: "accepted",
-      }));
-      console.log("✅ Sifariş qəbul edildi:", selectedOrderId);
-    } else if (confirmationType === "reject") {
-      setOrderStatus((prev) => ({
-        ...prev,
-        [selectedOrderId]: "rejected",
-      }));
-      console.log("❌ Sifariş ləğv edildi:", selectedOrderId);
-    } else if (confirmationType === "finish") {
-      setOrderStatus((prev) => ({
-        ...prev,
-        [selectedOrderId]: "finished",
-      }));
-      console.log("✅ Sifariş bitirildi:", selectedOrderId);
-    }
+  // Təsdiq
+  const handleConfirmAction = async () => {
+    if (!selectedOrder) return;
 
-    setShowConfirmation(false);
-    setConfirmationType(null);
-    setSelectedOrderId(null);
+    try {
+      let endpoint = "";
+      if (confirmationType === "accept") {
+        endpoint = `${API_URL}/orders/${selectedOrder.id}/accept/`;
+      } else if (confirmationType === "reject") {
+        endpoint = `${API_URL}/orders/${selectedOrder.id}/reject/`;
+      } else if (confirmationType === "finish") {
+        endpoint = `${API_URL}/orders/${selectedOrder.id}/finish/`;
+      }
+
+      const response = await axios.post(endpoint);
+
+      if (response.data.success) {
+        await fetchStats();
+        await fetchOrders(activeTab);
+      }
+    } catch (error) {
+      console.error("Əməliyyat xətası:", error);
+      alert("Xəta baş verdi!");
+    } finally {
+      setShowConfirmation(false);
+      setConfirmationType(null);
+      setSelectedOrder(null);
+    }
   };
 
-  // Popup bağlanır
+  // Popup bağla
   const handleCancelAction = () => {
     setShowConfirmation(false);
     setConfirmationType(null);
-    setSelectedOrderId(null);
+    setSelectedOrder(null);
   };
 
-  // Confirmation mesajını qaytarır
+  // Mesaj
   const getConfirmationMessage = () => {
     switch (confirmationType) {
       case "accept":
@@ -96,7 +133,6 @@ function ChefHomePage() {
     }
   };
 
-  // Confirmation button mətnini qaytarır
   const getConfirmButtonText = () => {
     switch (confirmationType) {
       case "accept":
@@ -110,7 +146,6 @@ function ChefHomePage() {
     }
   };
 
-  // Confirmation button class-ını qaytarır
   const getConfirmButtonClass = () => {
     switch (confirmationType) {
       case "accept":
@@ -124,16 +159,53 @@ function ChefHomePage() {
     }
   };
 
+  // Vaxt formatla: dd.mm.yyyy HH:MM
+  const formatDateTime = (dateString) => {
+    if (!dateString) return "Təyin edilməyib";
+    
+    const date = new Date(dateString);
+    
+    // Yoxla ki, date düzgün olsun
+    if (isNaN(date.getTime())) return "N/A";
+    
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
+  };
+
+  // Status təyin et
+  const getOrderStatus = (order) => {
+    // Ləğv edilmişmi?
+    if (order.is_cancelled) return "cancelled";
+    
+    if (!order.food_status || order.food_status.length === 0) return "pending";
+
+    const status = order.food_status;
+    
+    // Təhvil verilib
+    if (status[3]?.deliveredFood) return "finished";
+    
+    // Hazırlanır
+    if (status[2]?.makeFood) return "accepted";
+    
+    // Gözləyir
+    return "pending";
+  };
+
   return (
     <div id="chefHomePage">
-      {/* üst status bar */}
+      {/* Üst status bar */}
       <div className="order-status-container">
         <div
           className={`order-card ${activeTab === "pending" ? "active" : ""}`}
           onClick={() => setActiveTab("pending")}
         >
           <h4>Gözləyən sifarişlər</h4>
-          <p className="count">{orders.pending}</p>
+          <p className="count">{stats.pending}</p>
         </div>
 
         <div
@@ -141,7 +213,7 @@ function ChefHomePage() {
           onClick={() => setActiveTab("completed")}
         >
           <h4>Bitən sifarişlər</h4>
-          <p className="count">{orders.completed}</p>
+          <p className="count">{stats.completed}</p>
         </div>
 
         <div
@@ -149,155 +221,191 @@ function ChefHomePage() {
           onClick={() => setActiveTab("cancelled")}
         >
           <h4>Ləğv edilən sifarişlər</h4>
-          <p className="count">{orders.cancelled}</p>
+          <p className="count">{stats.cancelled}</p>
         </div>
       </div>
 
-      {/* sifariş kartı */}
+      {/* Sifariş kartları */}
       <div className="orderPage">
-        {orderData.map((order) => {
-          const status = orderStatus[order.id] || "pending";
+        {loading ? (
+          <ChaqrLoading />
+        ) : orders.length === 0 ? (
+          <div className="no-orders">Sifariş yoxdur</div>
+        ) : (
+          orders.map((order) => {
+            const status = getOrderStatus(order);
 
-          return (
-            <div
-              className={`orderPaper ${
-                status === "finished" ? "finished" : ""
-              }`}
-              style={{
-                border:
+            return (
+              <div
+                className={`orderPaper ${
                   status === "finished"
-                    ? "1px solid #11B059"
-                    : status === "rejected"
-                    ? "1px solid #CCAF14"
-                    : "",
-              }}
-              key={order.id}
-            >
-              <h3
+                    ? "finished"
+                    : status === "cancelled"
+                    ? "cancelled"
+                    : ""
+                }`}
                 style={{
-                  background:
+                  border:
                     status === "finished"
-                      ? "#11B059"
-                      : status === "rejected"
-                      ? "#CCAF14"
-                      : "",
-                  color:
-                    status === "finished"
-                      ? "white"
-                      : status === "rejected"
-                      ? "white"
+                      ? "1px solid #11B059"
+                      : status === "cancelled"
+                      ? "1px solid #CCAF14"
                       : "",
                 }}
+                key={order.id}
               >
-                Masa №{order.table}
-              </h3>
-              <p className="order-id">Sifariş №{order.id}</p>
+                <h3
+                  style={{
+                    background:
+                      status === "finished"
+                        ? "#11B059"
+                        : status === "cancelled"
+                        ? "#CCAF14"
+                        : "",
+                    color:
+                      status === "finished" || status === "cancelled"
+                        ? "white"
+                        : "",
+                  }}
+                >
+                  Masa №{order.table?.table_num || "N/A"}
+                </h3>
+                <p className="order-id">Sifariş №{order.id}</p>
 
-              <div className="order-time">
-                <div className="orderrr">
-                  <p>Sifariş vaxtı:</p>
-                  <span>B.e , Dekabr 12, 2025 &nbsp; 13:25</span>
+                <div className="order-time">
+                  <div className="orderrr">
+                    <p>Sifariş vaxtı:</p>
+                    <span>{formatDateTime(order.created_at)}</span>
+                  </div>
+                  <div className="orderrr">
+                    <p>Təhvil vaxtı:</p>
+                    <span>
+                      {order.food_status?.[3]?.time
+                        ? formatDateTime(order.food_status[3].time)
+                        : order.cancelled_at
+                        ? formatDateTime(order.cancelled_at)
+                        : "Təyin edilməyib"}
+                    </span>
+                  </div>
                 </div>
-                <div className="orderrr">
-                  <p>Təhvil vaxtı:</p>
-                  <span>B.e , Dekabr 12, 2025 &nbsp; 13:50</span>
-                </div>
-              </div>
 
-              <table className="order-table">
-                <thead>
-                  <tr>
-                    <th style={{ textAlign: "start" }}>Sifariş</th>
-                    <th style={{ textAlign: "center" }}>Say</th>
-                    <th style={{ textAlign: "end" }}>Vaxt</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td style={{ textAlign: "start" }}>Dolma</td>
-                    <td style={{ textAlign: "center" }}>2</td>
-                    <td style={{ textAlign: "end" }}>10 dəqiqə</td>
-                  </tr>
-                  <tr>
-                    <td style={{ textAlign: "start" }}>Qatıq</td>
-                    <td style={{ textAlign: "center" }}>1</td>
-                    <td style={{ textAlign: "end" }}>1 dəqiqə</td>
-                  </tr>
-                  <tr>
-                    <td style={{ textAlign: "start" }}>Qatıq</td>
-                    <td style={{ textAlign: "center" }}>3</td>
-                    <td style={{ textAlign: "end" }}>3 dəqiqə</td>
-                  </tr>
-                  <tr>
-                    <td style={{ textAlign: "start" }}>Lülə kabab</td>
-                    <td style={{ textAlign: "center" }}>1</td>
-                    <td style={{ textAlign: "end" }}>15 dəqiqə</td>
-                  </tr>
-                </tbody>
-              </table>
+                <table className="order-table">
+                  <thead>
+                    <tr>
+                      <th style={{ textAlign: "start" }}>Sifariş</th>
+                      <th style={{ textAlign: "center" }}>Say</th>
+                      <th style={{ textAlign: "end" }}>Vaxt</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+  {order.items && order.items.length > 0 ? (
+    order.items.flatMap((item, index) => {
+      // Əgər item extra_items container-idirsa
+      if (item.extra_items) {
+        return item.extra_items.map((extra, idx) => (
+          <tr key={`extra-${index}-${idx}`}>
+            <td style={{ textAlign: "start" }}>
+              {extra.product?.name_az || extra.name_az || "N/A"}
+            </td>
+            <td style={{ textAlign: "center" }}>{extra.count || 1}</td>
+            <td style={{ textAlign: "end" }}>
+              {extra.time || 0} dəqiqə
+            </td>
+          </tr>
+        ));
+      }
+      
+      // Normal item
+      return (
+        <tr key={index}>
+          <td style={{ textAlign: "start" }}>
+            {item.name_az || "N/A"}
+          </td>
+          <td style={{ textAlign: "center" }}>{item.count}</td>
+          <td style={{ textAlign: "end" }}>
+            {item.time || 0} dəqiqə
+          </td>
+        </tr>
+      );
+    })
+  ) : (
+    <tr>
+      <td colSpan="3" style={{ textAlign: "center" }}>
+        Məhsul yoxdur
+      </td>
+    </tr>
+  )}
+</tbody>
 
-              <div className="note-section">
-                <p>
-                  Qeyd: Zəhmət olmasa yeməkdə pul bibəri az istifadə edəsiniz.
+                </table>
+
+                {order.note && (
+                  <div className="note-section">
+                    <p>Qeyd: {order.note}</p>
+                  </div>
+                )}
+
+                <p
+                  className="prep-time"
+                  style={{
+                    color:
+                      status === "finished"
+                        ? "#11B059"
+                        : status === "cancelled"
+                        ? "#CCAF14"
+                        : "",
+                  }}
+                >
+                  Hazırlanma vaxtı: {order.total_time || 0} dəqiqə
                 </p>
-              </div>
 
-              <p
-                className="prep-time"
-                style={{
-                  color:
-                    status === "finished"
-                      ? "#11B059"
-                      : status === "rejected"
-                      ? "#CCAF14"
-                      : "",
-                }}
-              >
-                Hazırlanma vaxtı: 25 dəqiqə
-              </p>
+                <div className="order-actions">
+                  {/* Gözləyən sifarişlər - Qəbul et və Ləğv et */}
+                  {status === "pending" && (
+                    <>
+                      <button
+                        className="accept"
+                        onClick={() => handleAcceptClick(order)}
+                      >
+                        Qəbul et
+                      </button>
+                      <button
+                        className="reject"
+                        onClick={() => handleRejectClick(order)}
+                      >
+                        Ləğv et
+                      </button>
+                    </>
+                  )}
 
-              <div className="order-actions">
-                {status === "pending" && (
-                  <>
+                  {/* Qəbul edilmiş - Bitir düyməsi */}
+                  {status === "accepted" && (
                     <button
-                      className="accept"
-                      onClick={() => handleAcceptClick(order.id)}
+                      className="finish"
+                      onClick={() => handleFinishClick(order)}
                     >
-                      Qəbul et
+                      Bitir
                     </button>
-                    <button
-                      className="reject"
-                      onClick={() => handleRejectClick(order.id)}
-                    >
-                      Ləğv et
-                    </button>
-                  </>
-                )}
+                  )}
 
-                {status === "accepted" && (
-                  <button
-                    className="finish"
-                    onClick={() => handleFinishClick(order.id)}
-                  >
-                    Bitir
-                  </button>
-                )}
+                  {/* Bitmiş - Yaşıl işarə */}
+                  {status === "finished" && (
+                    <div className="completed-badge">
+                      <IoCheckmarkCircleSharp />
+                    </div>
+                  )}
 
-                {status === "finished" && (
-                  <div className="completed-badge">
-                    <IoCheckmarkCircleSharp />
-                  </div>
-                )}
-
-                {status === "rejected" && (
-                  <div className="completed-badge" style={{ color: "#CCAF14" }}>
-                    <IoIosAlert />
-                  </div>
-                )}
+                  {/* Ləğv edilmiş - Sarı xəbərdarlıq işarəsi */}
+                  {status === "cancelled" && (
+                    <div className="completed-badge" style={{ color: "#CCAF14" }}>
+                      <IoIosAlert />
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* Confirmation Popup */}
